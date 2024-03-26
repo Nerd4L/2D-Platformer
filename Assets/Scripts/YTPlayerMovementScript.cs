@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class YTPlayerScript : MonoBehaviour
 {
-    public int speed = 10;
+    public int speed = 7;
     private Rigidbody2D characterBody;
     private Vector2 velocity;
     private Vector2 inputMovement;
