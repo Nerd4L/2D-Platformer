@@ -17,7 +17,7 @@ public class PlayerScript : MonoBehaviour
         controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
         controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
 
-        //Shoot Input
+        //Jump Input
         controls.Gameplay.Jump.performed += ctx => tryToJump = true;
         controls.Gameplay.Jump.canceled += ctx => tryToJump = false;
     }
