@@ -5,39 +5,38 @@ using UnityEngine.InputSystem;
 
 public class PlayerScript : MonoBehaviour
 {
+    public ControllerScript controller;
     PlayerControls controls;
-    private Rigidbody2D kirbyBody;
 
-    public Vector2 move;
-    public bool tryToJump;
+    public float moveSpeed = 40f;
+    private float horizontalMove = 0f;
 
-    public float moveSpeed = 5f;
+    private Vector2 moveInput;
+    private bool jumpInput = false;
 
     private void Awake()
     {
         controls = new PlayerControls();
         controls.Gameplay.Enable();
-        kirbyBody = GetComponent<Rigidbody2D>();
 
         //Move Input
-        controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
-        controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
+        controls.Gameplay.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        controls.Gameplay.Move.canceled += ctx => moveInput = Vector2.zero;
 
         //Jump Input
-        controls.Gameplay.Jump.performed += ctx => tryToJump = true;
-        controls.Gameplay.Jump.canceled += ctx => tryToJump = false;
+        controls.Gameplay.Jump.performed += ctx => jumpInput = true;
+        controls.Gameplay.Jump.canceled += ctx => jumpInput = false;
     }
-    private void FixedUpdate()
+
+    // Update is called once per frame
+    void Update()
     {
-        Debug.Log("move = " + move.ToString());
-        Debug.Log("moveSpeed = " + moveSpeed.ToString());
+        horizontalMove = moveInput.x * moveSpeed;
+    }
 
-        Vector2 delta = new Vector2(move.x, 0) * Time.deltaTime * moveSpeed;
-        Vector2 newPosition = kirbyBody.position + delta;
-
-        Debug.Log("delta = " + delta.ToString());
-        Debug.Log("newPosition = " + newPosition.ToString());
-
-        kirbyBody.MovePosition(newPosition);
+    void FixedUpdate()
+    {
+        // Move our character
+        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput);
     }
 }
