@@ -1,10 +1,11 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ControllerScript : MonoBehaviour
 {
-    //PlayerControls controls;
     private Rigidbody2D kirbyBody;
 
     public Vector2 moveInput;
@@ -15,14 +16,34 @@ public class ControllerScript : MonoBehaviour
     const float groundedRadius = .3f;                                           // Distance of the overlap to determine if grounded
     private Vector3 velocity = Vector3.zero;
 
+    public float blinkInterval = 5f;
+    public float blinkTimer = 0f;
+
+    private bool allowedToDoubleJump = false;
+
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private bool grounded;                                     // Whether or not the player is grounded
     [Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
 
+    [Header("Events")]
+    [Space]
+
+    public UnityEvent OnFallingEvent;
+    public UnityEvent OnGroundedEvent;
+    public UnityEvent OnBlink;
+
+    [System.Serializable]
+    public class BoolEvent : UnityEvent<bool> { }
+
     private void Awake()
     {
         kirbyBody = GetComponent<Rigidbody2D>();
+
+        OnFallingEvent ??= new UnityEvent();
+        OnGroundedEvent ??= new UnityEvent();
+        OnBlink ??= new UnityEvent();
+
     }
 
     private void FixedUpdate()
@@ -36,8 +57,30 @@ public class ControllerScript : MonoBehaviour
         {
             if (colliders[i].gameObject != gameObject)
             {
+                // Grounded
                 grounded = true;
+                OnGroundedEvent.Invoke();
+                allowedToDoubleJump = true;
+
+                // Blink
+                blinkTimer += Time.deltaTime;
+                float blinkValue = Mathf.Floor(blinkInterval * Random.value);
+                if (blinkTimer > blinkValue)
+                {
+                    OnBlink.Invoke();
+                    blinkTimer = 0;
+                }
+
+                // Tripping
+
             }
+        }
+
+        // Check if Falling
+        if (kirbyBody.velocity.y < -2 && !grounded)
+        {
+            OnFallingEvent.Invoke();
+            //wasFalling = true;
         }
     }
 
@@ -61,11 +104,10 @@ public class ControllerScript : MonoBehaviour
         }
 
         // If the player should jump...
-        if (grounded && jump)
+        if (grounded && jump || (!grounded && jump && allowedToDoubleJump))
         {
-            // Add a vertical force to the player.
-            grounded = false;
-            kirbyBody.AddForce(new Vector2(0f, jumpForce));
+            Jump();
+            allowedToDoubleJump = false;
         }
     }
 
@@ -78,5 +120,12 @@ public class ControllerScript : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
+    }
+
+    private void Jump()
+    {
+        // Add a vertical force to the player.
+        grounded = false;
+        kirbyBody.AddForce(new Vector2(0f, jumpForce));
     }
 }

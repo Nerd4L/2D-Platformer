@@ -220,7 +220,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: kirby-walk-4
+      name: kirby-idle-blink
       rect:
         serializedVersion: 2
         x: 73
@@ -338,12 +338,12 @@ TextureImporter:
       kirby-crouch: 1351887521
       kirby-fall: -567106277
       kirby-idle: -1782190925
+      kirby-idle-blink: -793160940
       kirby-jump: -836145579
       kirby-squish: 1918758142
       kirby-walk-1: 1084185300
       kirby-walk-2: 1382527464
       kirby-walk-3: 438454048
-      kirby-walk-4: -793160940
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

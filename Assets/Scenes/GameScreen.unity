@@ -12440,8 +12440,8 @@ MonoBehaviour:
   m_RefResolutionY: 144
   m_UpscaleRT: 1
   m_PixelSnapping: 0
-  m_CropFrameX: 0
-  m_CropFrameY: 0
+  m_CropFrameX: 1
+  m_CropFrameY: 1
   m_StretchFill: 0
 --- !u!1 &647177144
 GameObject:
@@ -12629,6 +12629,7 @@ GameObject:
   - component: {fileID: 827983985}
   - component: {fileID: 827983989}
   - component: {fileID: 827983986}
+  - component: {fileID: 827983991}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -12652,7 +12653,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 3
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 66cfff17f459f794c867bf32510441e2, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -12676,6 +12677,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 827983990}
+  animator: {fileID: 827983991}
   moveSpeed: 40
 --- !u!212 &827983987
 SpriteRenderer:
@@ -12804,13 +12806,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveInput: {x: 0, y: 0}
   jumpInput: 0
-  jumpForce: 300
+  jumpForce: 175
   groundCheck: {fileID: 985848787}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 128
   grounded: 0
   m_MovementSmoothing: 0.05
+--- !u!95 &827983991
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 827983982}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 63f0406b762a1d04398a7562845f12cc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &985848786
 GameObject:
   m_ObjectHideFlags: 0
@@ -12983,7 +13006,7 @@ MonoBehaviour:
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
-    ModeOverride: 0
+    ModeOverride: 1
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
@@ -13088,7 +13111,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BoundingShape2D: {fileID: 424368161}
-  m_Damping: 0.5
+  m_Damping: 0
   m_MaxWindowSize: -1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
