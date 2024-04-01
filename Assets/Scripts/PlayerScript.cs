@@ -44,15 +44,12 @@ public class PlayerScript : MonoBehaviour
         yVelocity = Mathf.Abs(kirbyBody.velocity.y);
 
         horizontalMove = moveInput.x * moveSpeed;
-        if (xVelocity > 0.3f)
-        {
-            animator.SetFloat("Speed", xVelocity);
-        }
-        else
+
+        animator.SetFloat("Speed", xVelocity);
+        if (xVelocity < 0.3f)
         {
             animator.SetFloat("Speed", 0);
-        }
-        
+        }        
 
         if (jumpInput)
         {
