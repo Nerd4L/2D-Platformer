@@ -216,7 +216,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 1
-  m_Offset: {x: 1, y: 2}
+  m_Offset: {x: 0.4973526, y: 1.9970875}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -227,7 +227,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 110, y: 8}
+  m_Size: {x: 112.73369, y: 9.69927}
   m_EdgeRadius: 0
 --- !u!66 &238736245
 CompositeCollider2D:
@@ -268,20 +268,20 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 238736244}
     m_ColliderPaths:
-    - - X: 560000000
-        Y: 60000000
-      - X: -540000000
-        Y: 60000000
-      - X: -540000000
-        Y: -20000000
-      - X: 560000000
-        Y: -20000000
+    - - X: 568641984
+        Y: 68467224
+      - X: -558694912
+        Y: 68467224
+      - X: -558694912
+        Y: -28525476
+      - X: 568641984
+        Y: -28525476
   m_CompositePaths:
     m_Paths:
-    - - {x: 55.99997, y: -2}
-      - {x: 55.99997, y: 6}
-      - {x: -54, y: 5.999971}
-      - {x: -53.99997, y: -2}
+    - - {x: 56.864166, y: -2.8525476}
+      - {x: 56.864166, y: 6.8467226}
+      - {x: -55.86949, y: 6.846693}
+      - {x: -55.86946, y: -2.8525476}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -12815,8 +12815,8 @@ Tilemap:
   - first: {x: 22, y: -3, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 13
-      m_TileSpriteIndex: 0
+      m_TileIndex: 14
+      m_TileSpriteIndex: 14
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -12825,8 +12825,8 @@ Tilemap:
   - first: {x: 23, y: -3, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 13
-      m_TileSpriteIndex: 0
+      m_TileIndex: 14
+      m_TileSpriteIndex: 14
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -13615,8 +13615,8 @@ Tilemap:
   - first: {x: 23, y: -2, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 13
-      m_TileSpriteIndex: 0
+      m_TileIndex: 14
+      m_TileSpriteIndex: 14
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -14645,8 +14645,8 @@ Tilemap:
   - first: {x: 23, y: 0, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 0
-      m_TileSpriteIndex: 3
+      m_TileIndex: 15
+      m_TileSpriteIndex: 15
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -14834,7 +14834,7 @@ Tilemap:
       m_AllTileFlags: 1073741825
   m_AnimatedTiles: {}
   m_TileAssetArray:
-  - m_RefCount: 4
+  - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: 5818c09f63192c643adcb92760b854fd, type: 2}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: 3215a0c990f4c074cbfda7f63d0841a9, type: 2}
@@ -14860,16 +14860,20 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: d93e11c88918da740a369c011d3deb21, type: 2}
   - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: 8d8b34b27fed6c445bb4e7a839a3740c, type: 2}
-  - m_RefCount: 6
+  - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: 1caae76a7d6fdb343b1c82d30ec55327, type: 2}
+  - m_RefCount: 3
+    m_Data: {fileID: 11400000, guid: 172f242f0c678c140a5d558c1b14e82d, type: 2}
+  - m_RefCount: 1
+    m_Data: {fileID: 11400000, guid: f1f9682a3a5d0dc48ad1ead9795e34a6, type: 2}
   m_TileSpriteArray:
-  - m_RefCount: 6
+  - m_RefCount: 3
     m_Data: {fileID: -98404683, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
   - m_RefCount: 3
     m_Data: {fileID: 905170477, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
   - m_RefCount: 35
     m_Data: {fileID: -1382836936, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
-  - m_RefCount: 4
+  - m_RefCount: 3
     m_Data: {fileID: -297029928, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -975834919, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
@@ -14891,6 +14895,10 @@ Tilemap:
     m_Data: {fileID: 706184014, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
   - m_RefCount: 27
     m_Data: {fileID: 2023070520, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
+  - m_RefCount: 3
+    m_Data: {fileID: -1302852998, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
+  - m_RefCount: 1
+    m_Data: {fileID: 154057142, guid: c341c8fedea95e048a09c7dcbf2fef7a, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 258
     m_Data:
@@ -15331,7 +15339,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -48, y: 2.01, z: -10}
+  m_LocalPosition: {x: -48, y: 2, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15386,8 +15394,8 @@ MonoBehaviour:
   m_AssetsPPU: 16
   m_RefResolutionX: 160
   m_RefResolutionY: 144
-  m_UpscaleRT: 1
-  m_PixelSnapping: 0
+  m_UpscaleRT: 0
+  m_PixelSnapping: 1
   m_CropFrameX: 1
   m_CropFrameY: 1
   m_StretchFill: 0
@@ -15514,6 +15522,7 @@ MonoBehaviour:
   controller: {fileID: 827983990}
   animator: {fileID: 827983991}
   moveSpeed: 40
+  jumpForce: 700
   dropDown: 0
 --- !u!212 &827983987
 SpriteRenderer:
@@ -15576,7 +15585,7 @@ Transform:
   m_GameObject: {fileID: 827983982}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -48, y: 0.51, z: 0}
+  m_LocalPosition: {x: -48, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -15642,7 +15651,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveInput: {x: 0, y: 0}
   jumpInput: 0
-  jumpForce: 700
   blinkInterval: 100
   blinkTimer: 0
   groundCheck: {fileID: 985848787}
@@ -15681,12 +15689,27 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  OnBlink:
+  OnBlinkEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 827983986}
         m_TargetAssemblyTypeName: PlayerScript, Assembly-CSharp
         m_MethodName: IsBlinking
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnJumpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 827983986}
+        m_TargetAssemblyTypeName: PlayerScript, Assembly-CSharp
+        m_MethodName: IsJumping
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -16052,8 +16075,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2103436609}
   - component: {fileID: 2103436608}
-  - component: {fileID: 2103436614}
   - component: {fileID: 2103436615}
+  - component: {fileID: 2103436614}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -16109,7 +16132,7 @@ Transform:
   m_GameObject: {fileID: 2103436607}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -48, y: 2.01, z: -10}
+  m_LocalPosition: {x: -48, y: 2, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
