@@ -62,7 +62,6 @@
   <ItemGroup>
     <Compile Include="Assets\Controllers\PlayerControls.cs" />
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
-    <Compile Include="Assets\Scripts\YTPlayerMovementScript.cs" />
     <Compile Include="Assets\Scripts\ControllerScript.cs" />
   </ItemGroup>
   <ItemGroup>
