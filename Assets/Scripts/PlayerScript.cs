@@ -15,6 +15,7 @@ public class PlayerScript : MonoBehaviour
 
     private Vector2 moveInput;
     private bool jumpInput = false;
+    [SerializeField] private bool dropDown = false;
 
     private bool hasBlinked = false;
 
@@ -35,6 +36,10 @@ public class PlayerScript : MonoBehaviour
         //Jump Input
         controls.Gameplay.Jump.performed += ctx => jumpInput = true;
         controls.Gameplay.Jump.canceled += ctx => jumpInput = false;
+
+        //DropDown Input
+        controls.Gameplay.DropDown.performed += ctx => dropDown = true;
+        controls.Gameplay.DropDown.canceled += ctx => dropDown = false;
     }
 
     // Update is called once per frame
@@ -55,12 +60,14 @@ public class PlayerScript : MonoBehaviour
         {
             animator.SetBool("IsGrounded", false);
         }
+
+        //controller.DropDown(dropDown);
     }
 
     void FixedUpdate()
     {
         // Move our character
-        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput, dropDown);
 
         if (hasBlinked)
         {

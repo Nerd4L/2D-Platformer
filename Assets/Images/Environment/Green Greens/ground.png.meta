@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b71b322c5fdc4864182f80a39b39af78
+guid: c341c8fedea95e048a09c7dcbf2fef7a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,9 +37,9 @@ TextureImporter:
     filterMode: 0
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
-    wrapW: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -136,7 +136,259 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: big-cloud-left-top
+      name: ground-top-edge
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3c55b6c5a556be41801c65c75c24bcb
+      internalID: -1981991981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-top-middle
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2dddcd4d71bc90e4fac0e6a9ad5c8f05
+      internalID: -1930204700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-side-edge-small-grass
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e9cca5620e23664f8691f929095c212
+      internalID: 1068121464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small-platform-1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b6a4bbcf1cbe5c478b557a57addaf67
+      internalID: -735900614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small-platform-2
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3caa836ab77372c4eb5eccbb63a4954d
+      internalID: -622057828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small-platform-3
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 48
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: afda8a8f9919b084b8f1a0be16dbf3ff
+      internalID: -994511179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-side-edge
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a0c4b691a009a0f49b6ee96a3db8f9ae
+      internalID: 706184014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-center
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dc7213a303556084cbfd3f19d533f5b6
+      internalID: -1382836936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-side-edge-tall-grass
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e024272e8bce74345aa6a64b86b9925d
+      internalID: -608640993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small-platform-4-side
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 95afd10732417914694aa43afff42dfb
+      internalID: 1628776423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small-platform-4-middle
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c13160a0631c28489e372e1e44d878a
+      internalID: -1570714376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tree-block
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9cf9fb0df16d7894d9f7dbb9980f2451
+      internalID: 611847482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ground-center-tall-grass
       rect:
         serializedVersion: 2
         x: 0
@@ -150,14 +402,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bde7f86d7074f4843a35b2552fe2ef1d
-      internalID: -1242501843
+      spriteID: 37e62d13e51a02e4f89bd7d12837440a
+      internalID: 2114662320
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: big-cloud-middle-top
+      name: ground-center-small-grass
       rect:
         serializedVersion: 2
         x: 16
@@ -171,14 +423,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1ced9286af09daf4bb73ccb7f10e24a7
-      internalID: -1114275665
+      spriteID: 3b9749cf2bbae3b4a8ba0e18806799b9
+      internalID: -237407385
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: big-cloud-right-top
+      name: ground-cliff-diagonal
       rect:
         serializedVersion: 2
         x: 32
@@ -192,14 +444,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 974eb36bae7f4d3438874300f827bc9c
-      internalID: 2146619535
+      spriteID: 82475518724735248b5ab7027ca96720
+      internalID: -297029928
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: empty
+      name: ground-cliff-horizontal
       rect:
         serializedVersion: 2
         x: 48
@@ -213,14 +465,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9d35560c54a2e4547bc189e59dc3307e
-      internalID: 1725952594
+      spriteID: 10f4c3f7c767dd94e92c6ef7e9ffa2e2
+      internalID: -975834919
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: collumn-top
+      name: ground-corner-small
       rect:
         serializedVersion: 2
         x: 64
@@ -234,14 +486,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3fba1df2092d6254a8b6d00ecd7250bf
-      internalID: 295576321
+      spriteID: c8b3bb3fbc2af08499fde5732d5898ed
+      internalID: -312962408
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: tall-grass
+      name: platform-tree-edge
       rect:
         serializedVersion: 2
         x: 80
@@ -255,35 +507,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 266fb2355559fb3469fe728a7ab4bd1e
-      internalID: -126939050
+      spriteID: c21ffe3c9011f0741b99f172da22c33c
+      internalID: 387376941
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: small-cloud
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 16
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 55bff4bd2d9c0d646b4f3c2c56e5d36e
-      internalID: 445975352
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: big-cloud-left-bottom
+      name: ground-center-tall-grass-2
       rect:
         serializedVersion: 2
         x: 0
@@ -297,14 +528,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c67b593829b62954aad817c52454e13d
-      internalID: 1398499278
+      spriteID: 43b037ec3ab03bf43815d4d266d51090
+      internalID: 1756218910
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: big-cloud-middle-bottom
+      name: ground-top-middle-small-grass
       rect:
         serializedVersion: 2
         x: 16
@@ -318,14 +549,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 30d662f6d31f1ec428498ec540fd2334
-      internalID: -865989356
+      spriteID: 0992a01952caa5f44a6a7666962c7664
+      internalID: 2023070520
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: big-cloud-right-bottom
+      name: ground-cliff-center
       rect:
         serializedVersion: 2
         x: 32
@@ -339,14 +570,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f12ee8bf0e664c499f9bd67344aa1f3
-      internalID: -70704031
+      spriteID: 1afe668b90922284888bef1e99679e65
+      internalID: -98404683
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: small-grass
+      name: ground-cliff-edge
       rect:
         serializedVersion: 2
         x: 48
@@ -360,14 +591,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf07b30862cc615469484a171629c4fb
-      internalID: 946541014
+      spriteID: 956c651c281cae34aad622a109ab1ed0
+      internalID: 905170477
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: collumn
+      name: ground-corner-big
       rect:
         serializedVersion: 2
         x: 64
@@ -381,14 +612,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7529ff1d822924947a525f4b7d5dc3a4
-      internalID: -928086249
+      spriteID: 178b31e5cbcc8554d838314a007e7775
+      internalID: -1440928384
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: half-collumn
+      name: platform-tree-middle
       rect:
         serializedVersion: 2
         x: 80
@@ -402,29 +633,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 37f9b090e79d97145bb2c08f857011fc
-      internalID: 1464088312
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: collumn-overlap
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 0
-        width: 16
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 791e6a31771ffe641abb201f579265d8
-      internalID: -368343460
+      spriteID: b2922efd6842bcb43859958c829310a9
+      internalID: -14913482
       vertices: []
       indices: 
       edges: []
@@ -440,20 +650,30 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      big-cloud-left-bottom: 1398499278
-      big-cloud-left-top: -1242501843
-      big-cloud-middle-bottom: -865989356
-      big-cloud-middle-top: -1114275665
-      big-cloud-right-bottom: -70704031
-      big-cloud-right-top: 2146619535
-      collumn: -928086249
-      collumn-overlap: -368343460
-      collumn-top: 295576321
-      empty: 1725952594
-      half-collumn: 1464088312
-      small-cloud: 445975352
-      small-grass: 946541014
-      tall-grass: -126939050
+      ground-center: -1382836936
+      ground-center-small-grass: -237407385
+      ground-center-tall-grass: 2114662320
+      ground-center-tall-grass-2: 1756218910
+      ground-cliff-center: -98404683
+      ground-cliff-diagonal: -297029928
+      ground-cliff-edge: 905170477
+      ground-cliff-horizontal: -975834919
+      ground-corner-big: -1440928384
+      ground-corner-small: -312962408
+      ground-side-edge: 706184014
+      ground-side-edge-small-grass: 1068121464
+      ground-side-edge-tall-grass: -608640993
+      ground-top-edge: -1981991981
+      ground-top-middle: -1930204700
+      ground-top-middle-small-grass: 2023070520
+      platform-tree-edge: 387376941
+      platform-tree-middle: -14913482
+      small-platform-1: -735900614
+      small-platform-2: -622057828
+      small-platform-3: -994511179
+      small-platform-4-middle: -1570714376
+      small-platform-4-side: 1628776423
+      tree-block: 611847482
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

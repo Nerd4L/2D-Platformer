@@ -1,8 +1,13 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Unity.VisualScripting;
+using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class ControllerScript : MonoBehaviour
 {
@@ -11,20 +16,21 @@ public class ControllerScript : MonoBehaviour
     public Vector2 moveInput;
     public bool jumpInput;
 
-    public float jumpForce = 300f;                                               // Amount of force added when the player jumps.
-    private bool facingRight = true;                                            // For determining which way the player is currently facing.
+    public float jumpForce = 300f;                                              // Amount of force added when the player jumps.
     const float groundedRadius = .3f;                                           // Distance of the overlap to determine if grounded
     private Vector3 velocity = Vector3.zero;
+
+    private bool facingRight = true;                                            // For determining which way the player is currently facing.
 
     public float blinkInterval = 5f;
     public float blinkTimer = 0f;
 
-    private bool allowedToDoubleJump = false;
+    //private bool allowedToDoubleJump = false;
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask whatIsGround;
-    [SerializeField] private bool grounded;                                     // Whether or not the player is grounded
-    [Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
+    [SerializeField] private bool grounded;                                     // Whether or not the player is grounded                                  // Whether or not the player is on a platform
+    [Range(0, .3f)][SerializeField] private float movementSmoothing = .1f;      // How much to smooth out the movement
 
     [Header("Events")]
     [Space]
@@ -60,11 +66,10 @@ public class ControllerScript : MonoBehaviour
                 // Grounded
                 grounded = true;
                 OnGroundedEvent.Invoke();
-                allowedToDoubleJump = true;
 
                 // Blink
                 blinkTimer += Time.deltaTime;
-                float blinkValue = Mathf.Floor(blinkInterval * Random.value);
+                float blinkValue = Mathf.Floor(blinkInterval * UnityEngine.Random.value);
                 if (blinkTimer > blinkValue)
                 {
                     OnBlink.Invoke();
@@ -77,49 +82,71 @@ public class ControllerScript : MonoBehaviour
         }
 
         // Check if Falling
-        if (kirbyBody.velocity.y < -2 && !grounded)
+        if (kirbyBody.velocity.y < -0.01f)
         {
             OnFallingEvent.Invoke();
-            //wasFalling = true;
         }
     }
 
-    public void Move(float move, bool jump)
+    public void Move(float move, bool jump, bool dropDown)
     {
         // Move the character by finding the target velocity
         Vector3 targetVelocity = new Vector2(move * 10f, kirbyBody.velocity.y);
         // And then smoothing it out and applying it to the character
-        kirbyBody.velocity = Vector3.SmoothDamp(kirbyBody.velocity, targetVelocity, ref velocity, m_MovementSmoothing);
+        kirbyBody.velocity = Vector3.SmoothDamp(kirbyBody.velocity, targetVelocity, ref velocity, movementSmoothing);
 
+        // Flip the player
         if (move > 0 && !facingRight)
-        {
-            // ... flip the player.
             Flip();
-        }
-        // Otherwise if the input is moving the player left and the player is facing right...
         else if (move < 0 && facingRight)
-        {
-            // ... flip the player.
             Flip();
+
+        if (dropDown || kirbyBody.velocity.y > 0f)
+        {
+            ignorePlatforms(true);
+        } 
+        else if (!dropDown && !grounded)
+        {
+            ignorePlatforms(false);
         }
 
         // If the player should jump...
-        if (grounded && jump || (!grounded && jump && allowedToDoubleJump))
+        if (grounded && jump && Mathf.Abs(kirbyBody.velocity.y) < 0.01f)
         {
             Jump();
-            allowedToDoubleJump = false;
+            //allowedToDoubleJump = false;
+        }
+    }
+
+    private void ignorePlatforms(bool active)
+    {
+        if (active)
+        {
+            Physics2D.IgnoreLayerCollision(3, 7, true);
+        }
+        else
+        {
+            Physics2D.IgnoreLayerCollision(3, 7, false);
         }
     }
 
     private void Flip()
     {
+        // Rotate 180 on Y-axis
+        if (facingRight)
+        {
+            Vector3 theRotation = new Vector3(transform.localRotation.x, 180f, transform.localRotation.z);
+            transform.rotation = Quaternion.Euler(theRotation);
+        }
+        else
+        {
+            Vector3 theRotation = new Vector3(transform.localRotation.x, 0, transform.localRotation.z);
+            transform.rotation = Quaternion.Euler(theRotation);
+        }
+        
+
         // Switch the way the player is labelled as facing.
         facingRight = !facingRight;
-
-        // Multiply the player's x local scale by -1.
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
     }
 
     private void Jump()
