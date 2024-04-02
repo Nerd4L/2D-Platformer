@@ -14,9 +14,7 @@ public class ControllerScript : MonoBehaviour
     private Rigidbody2D kirbyBody;
 
     public Vector2 moveInput;
-    public bool jumpInput;
-
-    public float jumpForce = 300f;                                              // Amount of force added when the player jumps.
+    
     const float groundedRadius = .3f;                                           // Distance of the overlap to determine if grounded
     private Vector3 velocity = Vector3.zero;
 
@@ -25,7 +23,9 @@ public class ControllerScript : MonoBehaviour
     public float blinkInterval = 5f;
     public float blinkTimer = 0f;
 
-    //private bool allowedToDoubleJump = false;
+    private bool allowedToDoubleJump = false;
+    //private bool hasDoubleJumped = false;
+    [SerializeField] private bool hasLetGoJump = false;
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask whatIsGround;
@@ -37,7 +37,8 @@ public class ControllerScript : MonoBehaviour
 
     public UnityEvent OnFallingEvent;
     public UnityEvent OnGroundedEvent;
-    public UnityEvent OnBlink;
+    public UnityEvent OnBlinkEvent;
+    public UnityEvent OnJumpEvent;
 
     [System.Serializable]
     public class BoolEvent : UnityEvent<bool> { }
@@ -48,7 +49,8 @@ public class ControllerScript : MonoBehaviour
 
         OnFallingEvent ??= new UnityEvent();
         OnGroundedEvent ??= new UnityEvent();
-        OnBlink ??= new UnityEvent();
+        OnBlinkEvent ??= new UnityEvent();
+        OnJumpEvent ??= new UnityEvent();
 
     }
 
@@ -65,19 +67,20 @@ public class ControllerScript : MonoBehaviour
             {
                 // Grounded
                 grounded = true;
+                //hasLetGoJump = true;
                 OnGroundedEvent.Invoke();
+                allowedToDoubleJump = true;
 
                 // Blink
                 blinkTimer += Time.deltaTime;
                 float blinkValue = Mathf.Floor(blinkInterval * UnityEngine.Random.value);
                 if (blinkTimer > blinkValue)
                 {
-                    OnBlink.Invoke();
+                    OnBlinkEvent.Invoke();
                     blinkTimer = 0;
                 }
 
-                // Tripping
-
+                // TODO Tripping
             }
         }
 
@@ -88,7 +91,7 @@ public class ControllerScript : MonoBehaviour
         }
     }
 
-    public void Move(float move, bool jump, bool dropDown)
+    public void Move(float move, bool jump, float jumpForce, bool dropDown)
     {
         // Move the character by finding the target velocity
         Vector3 targetVelocity = new Vector2(move * 10f, kirbyBody.velocity.y);
@@ -103,22 +106,31 @@ public class ControllerScript : MonoBehaviour
 
         if (dropDown || kirbyBody.velocity.y > 0f)
         {
-            ignorePlatforms(true);
+            IgnorePlatforms(true);
         } 
         else if (!dropDown && !grounded)
         {
-            ignorePlatforms(false);
+            IgnorePlatforms(false);
         }
 
         // If the player should jump...
         if (grounded && jump && Mathf.Abs(kirbyBody.velocity.y) < 0.01f)
         {
-            Jump();
-            //allowedToDoubleJump = false;
+            Jump(jumpForce, false);
+            OnJumpEvent.Invoke();
+            //hasDoubleJumped = false;
         }
+        else if (allowedToDoubleJump && jump && hasLetGoJump)
+        {
+            Jump(jumpForce, true);
+            OnJumpEvent.Invoke();
+            allowedToDoubleJump = false;
+            //hasDoubleJumped = true;
+        }
+        if (!jump) {hasLetGoJump = true;} else {hasLetGoJump = false;}
     }
 
-    private void ignorePlatforms(bool active)
+    private void IgnorePlatforms(bool active)
     {
         if (active)
         {
@@ -149,10 +161,16 @@ public class ControllerScript : MonoBehaviour
         facingRight = !facingRight;
     }
 
-    private void Jump()
+    private void Jump(float addJumpForce, bool reset)
     {
         // Add a vertical force to the player.
         grounded = false;
-        kirbyBody.AddForce(new Vector2(0f, jumpForce));
+        if (reset)
+        {   
+            Vector2 oldVector = kirbyBody.velocity; 
+            kirbyBody.velocity = new Vector2(oldVector.x, 0f);
+        }
+
+        kirbyBody.AddForce(new Vector2(0f, addJumpForce));
     }
 }

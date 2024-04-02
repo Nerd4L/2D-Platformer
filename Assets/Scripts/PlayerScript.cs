@@ -11,6 +11,7 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody2D kirbyBody;
 
     public float moveSpeed = 40f;
+    public float jumpForce = 300f;                                              // Amount of force added when the player jumps.
     private float horizontalMove = 0f;
 
     private Vector2 moveInput;
@@ -67,7 +68,7 @@ public class PlayerScript : MonoBehaviour
     void FixedUpdate()
     {
         // Move our character
-        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput, dropDown);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput, jumpForce, dropDown);
 
         if (hasBlinked)
         {
@@ -86,11 +87,18 @@ public class PlayerScript : MonoBehaviour
     {
         animator.SetBool("IsFalling", true);
         animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsJumping", false);
     }
 
     public void IsBlinking()
     {
         animator.SetBool("IsBlinking", true);
         hasBlinked = true;
+    }
+
+    public void IsJumping()
+    {
+        animator.SetBool("IsJumping", true);
+        animator.SetBool("IsFalling", false);
     }
 }
