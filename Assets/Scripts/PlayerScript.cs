@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class PlayerScript : MonoBehaviour
 
     private Vector2 moveInput;
     private bool jumpInput = false;
-    [SerializeField] private bool dropDown = false;
+    [SerializeField] private bool crouch = false;
 
     private bool hasBlinked = false;
 
@@ -32,16 +33,16 @@ public class PlayerScript : MonoBehaviour
         //Time.timeScale = 0.2f;
 
         //Move Input
-        controls.Gameplay.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        controls.Gameplay.Move.canceled += ctx => moveInput = Vector2.zero;
+        controls.Gameplay.MoveHorizontal.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        controls.Gameplay.MoveHorizontal.canceled += ctx => moveInput = Vector2.zero;
 
         //Jump Input
         controls.Gameplay.Jump.performed += ctx => jumpInput = true;
         controls.Gameplay.Jump.canceled += ctx => jumpInput = false;
 
         //DropDown Input
-        controls.Gameplay.DropDown.performed += ctx => dropDown = true;
-        controls.Gameplay.DropDown.canceled += ctx => dropDown = false;
+        controls.Gameplay.Crouch.performed += ctx => crouch = true;
+        controls.Gameplay.Crouch.canceled += ctx => crouch = false;
     }
 
     // Update is called once per frame
@@ -69,7 +70,7 @@ public class PlayerScript : MonoBehaviour
     void FixedUpdate()
     {
         // Move our character
-        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput, jumpForce, dropDown);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, jumpInput, jumpForce, crouch);
 
         if (hasBlinked)
         {

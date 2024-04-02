@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.VisualScripting;
-using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -89,7 +88,7 @@ public class ControllerScript : MonoBehaviour
         }
     }
 
-    public void Move(float move, bool jump, float jumpForce, bool dropDown)
+    public void Move(float move, bool jump, float jumpForce, bool crouch)
     {
         // Move the character by finding the target velocity
         Vector3 targetVelocity = new Vector2(move * 10f, kirbyBody.velocity.y);
@@ -102,11 +101,11 @@ public class ControllerScript : MonoBehaviour
         else if (move < 0 && facingRight)
             Flip();
 
-        if (dropDown || kirbyBody.velocity.y > 0f)
+        if (crouch || kirbyBody.velocity.y > 0f)
         {
             IgnorePlatforms(true);
         } 
-        else if (!dropDown && !grounded)
+        else if (!crouch && !grounded)
         {
             IgnorePlatforms(false);
         }
@@ -115,12 +114,10 @@ public class ControllerScript : MonoBehaviour
         if (grounded && jump && Mathf.Abs(kirbyBody.velocity.y) < 0.01f)
         {
             Jump(jumpForce, false);
-            OnJumpEvent.Invoke();
         }
         else if (allowedToDoubleJump && jump && hasLetGoJump)
         {
             Jump(jumpForce, true);
-            OnJumpEvent.Invoke();
             allowedToDoubleJump = false;
         }
         if (!jump) {hasLetGoJump = true;} else {hasLetGoJump = false;}
@@ -168,5 +165,6 @@ public class ControllerScript : MonoBehaviour
         }
 
         kirbyBody.AddForce(new Vector2(0f, addJumpForce));
+        OnJumpEvent.Invoke();
     }
 }
