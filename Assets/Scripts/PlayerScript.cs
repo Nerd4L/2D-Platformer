@@ -28,6 +28,7 @@ public class PlayerScript : MonoBehaviour
         controls = new PlayerControls();
         controls.Gameplay.Enable();
         kirbyBody = GetComponent<Rigidbody2D>();
+
         //Time.timeScale = 0.2f;
 
         //Move Input

@@ -24,8 +24,7 @@ public class ControllerScript : MonoBehaviour
     public float blinkTimer = 0f;
 
     private bool allowedToDoubleJump = false;
-    //private bool hasDoubleJumped = false;
-    [SerializeField] private bool hasLetGoJump = false;
+    private bool hasLetGoJump = false;
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask whatIsGround;
@@ -67,7 +66,6 @@ public class ControllerScript : MonoBehaviour
             {
                 // Grounded
                 grounded = true;
-                //hasLetGoJump = true;
                 OnGroundedEvent.Invoke();
                 allowedToDoubleJump = true;
 
@@ -118,14 +116,12 @@ public class ControllerScript : MonoBehaviour
         {
             Jump(jumpForce, false);
             OnJumpEvent.Invoke();
-            //hasDoubleJumped = false;
         }
         else if (allowedToDoubleJump && jump && hasLetGoJump)
         {
             Jump(jumpForce, true);
             OnJumpEvent.Invoke();
             allowedToDoubleJump = false;
-            //hasDoubleJumped = true;
         }
         if (!jump) {hasLetGoJump = true;} else {hasLetGoJump = false;}
     }
