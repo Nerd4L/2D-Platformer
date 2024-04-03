@@ -61,8 +61,6 @@ public class WaddleDeeAIScript : MonoBehaviour
             obstacleCanJump = true;
         }
 
-        Debug.Log(jumpColliders.Length);
-
         if (obstacleCanJump && grounded && nearWall)
         {
             Jump();
