@@ -63,6 +63,7 @@
     <Compile Include="Assets\Controllers\PlayerControls.cs" />
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
     <Compile Include="Assets\Scripts\CamerScript.cs" />
+    <Compile Include="Assets\Scripts\WaddleDeeAIScript.cs" />
     <Compile Include="Assets\Scripts\ControllerScript.cs" />
   </ItemGroup>
   <ItemGroup>
