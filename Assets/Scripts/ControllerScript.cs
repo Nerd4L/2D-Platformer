@@ -165,6 +165,11 @@ public class ControllerScript : MonoBehaviour
 
         if (!jump)
         {
+            if (kirbyBody.velocity.y > 10f)
+            {
+                kirbyBody.velocity = new Vector2(kirbyBody.velocity.x, kirbyBody.velocity.y / 2f);
+            }
+            
             hasPressedJump = false;
             coyoteTimeCounter = 0f;
             hasLetGoJump = true;
