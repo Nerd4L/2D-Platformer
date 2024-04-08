@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\CamerScript.cs" />
     <Compile Include="Assets\Scripts\WaddleDeeAIScript.cs" />
     <Compile Include="Assets\Scripts\ActivationScript.cs" />
+    <Compile Include="Assets\Scripts\EnemySpawnerScript.cs" />
     <Compile Include="Assets\Scripts\ControllerScript.cs" />
   </ItemGroup>
   <ItemGroup>
