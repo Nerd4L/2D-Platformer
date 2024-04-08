@@ -27,8 +27,7 @@ public class ControllerScript : MonoBehaviour
 
     private bool hasPressedJump = false;
     private bool hasLetGoJump = true;
-
-    private bool hasJumped = false;    
+    private bool hasDoubleJumped = false;
 
     [SerializeField] private Transform groundCheck;
 
@@ -133,6 +132,7 @@ public class ControllerScript : MonoBehaviour
                 blinkTimer = 0;
             }
             hasPressedJump = false;
+            hasDoubleJumped = false;
             OnGroundedEvent.Invoke();
         }
         else
@@ -145,9 +145,20 @@ public class ControllerScript : MonoBehaviour
         }
 
         // Check if Falling
-        if (kirbyBody.velocity.y < 0f)
+        if (kirbyBody.velocity.y < -0.01f)
         {
             OnFallingEvent.Invoke();
+        }
+
+        // Check if flying
+        if (kirbyBody.velocity.y > 0.01f)
+        {
+            OnJumpEvent.Invoke();
+        }
+
+        if (MathF.Abs(kirbyBody.velocity.y) < 0.01f)
+        {
+            OnGroundedEvent.Invoke();
         }
     }
 
@@ -169,22 +180,16 @@ public class ControllerScript : MonoBehaviour
         {
             if (coyoteTimeCounter > 0f  && !hasPressedJump && hasLetGoJump) 
             {
-                //Debug.Log("coyoteTimeCounter = " + coyoteTimeCounter);
                 hasPressedJump = true;
                 Jump(jumpForce);
-                //hasJumped = true;
-                //Debug.Log("hasPressedJump = " + hasPressedJump.ToString());
-                //Debug.Log("hasJumped = " + hasJumped.ToString());
-                //Debug.Log("hasLetGoJump = " + hasLetGoJump.ToString());
                 Debug.Log("Normal Jump");
             }
 
-            if (coyoteTimeCounter <= 0f && !hasPressedJump && hasLetGoJump)
+            if (coyoteTimeCounter <= 0f && !hasPressedJump && hasLetGoJump && !hasDoubleJumped)
             {
                 hasPressedJump = true;
                 Jump(jumpForce);
-                //hasJumped = false;
-
+                hasDoubleJumped = true;
                 Debug.Log("Double Jump");
             }
 
@@ -198,15 +203,9 @@ public class ControllerScript : MonoBehaviour
             hasLetGoJump = true;
         }
 
-        //if (crouch)
-        //{
-        //    StartCoroutine(IgnorePlatformsTimer());
-        //}
-
         if (kirbyBody.velocity.y > 0.1f || crouch)
         {
             IgnorePlatforms(true);
-            //Debug.Log("Velocity = " + kirbyBody.velocity.y);
         }
         if (kirbyBody.velocity.y <= 0.1f && (!crouch && !IsOnPlatform()))
         {
@@ -224,15 +223,6 @@ public class ControllerScript : MonoBehaviour
         }
     }
 
-    private IEnumerator IgnorePlatformsTimer()
-    {
-        Physics2D.IgnoreLayerCollision(3, 7, true);
-        ignorePlatforms = true;
-        yield return new WaitForSeconds(0.25f);
-        Physics2D.IgnoreLayerCollision(3, 7, false);
-        ignorePlatforms = false;
-    }
-
     private void Flip()
     {
         // Rotate 180 on Y-axis
@@ -246,7 +236,6 @@ public class ControllerScript : MonoBehaviour
             Vector3 theRotation = new Vector3(transform.localRotation.x, 0, transform.localRotation.z);
             transform.rotation = Quaternion.Euler(theRotation);
         }
-        
 
         // Switch the way the player is labelled as facing.
         facingRight = !facingRight;
@@ -263,6 +252,5 @@ public class ControllerScript : MonoBehaviour
 
         // Add a vertical force to the player.
         kirbyBody.AddForce(new Vector2(0f, addJumpForce));
-        OnJumpEvent.Invoke();
     }
 }

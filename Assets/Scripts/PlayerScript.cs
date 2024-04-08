@@ -66,10 +66,10 @@ public class PlayerScript : MonoBehaviour
 
         horizontalMove = moveInput.x * moveSpeed;
 
-        if (jumpInput)
-        {
-            animator.SetBool("IsGrounded", false);
-        }
+        //if (jumpInput)
+        //{
+        //    animator.SetBool("IsGrounded", false);
+        //}
 
         //controller.DropDown(dropDown);
     }
@@ -81,33 +81,35 @@ public class PlayerScript : MonoBehaviour
 
         if (hasBlinked)
         {
-            animator.SetTrigger("IsBlinking 0");
+            animator.SetBool("IsBlinking", false);
             hasBlinked = false;
         }
     }
 
     public void IsGrounded()
     {
-        animator.SetTrigger("IsGrounded 0");
-        //animator.SetTrigger("IsFalling", false);
+        animator.SetBool("IsFalling", false);
+        animator.SetBool("IsGrounded", true);
+        animator.SetBool("IsJumping", false);
     }
 
     public void IsFalling()
     {
-        animator.SetTrigger("IsFalling 0");
-        //animator.SetTrigger("IsGrounded", false);
-        //animator.SetTrigger("IsJumping", false);
+        animator.SetBool("IsFalling", true);
+        animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsJumping", false);
     }
 
     public void IsBlinking()
     {
-        animator.SetTrigger("IsBlinking 0");
+        animator.SetBool("IsBlinking", true);
         hasBlinked = true;
     }
 
     public void IsJumping()
     {
-        animator.SetTrigger("IsJumping 0");
-        //animator.SetTrigger("IsFalling", false);
+        animator.SetBool("IsFalling", false);
+        animator.SetBool("IsGrounded", false);
+        animator.SetBool("IsJumping", true);
     }
 }
