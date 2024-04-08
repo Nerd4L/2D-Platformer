@@ -11,24 +11,37 @@ using UnityEngine.UI;
 public class ControllerScript : MonoBehaviour
 {
     private Rigidbody2D kirbyBody;
+    private BoxCollider2D kirbyBoxCollider;
 
     public Vector2 moveInput;
-    
-    const float groundedRadius = .3f;                                           // Distance of the overlap to determine if grounded
     private Vector3 velocity = Vector3.zero;
 
     private bool facingRight = true;                                            // For determining which way the player is currently facing.
 
-    public float blinkInterval = 5f;
-    public float blinkTimer = 0f;
+    private float blinkInterval = 100f;
+    private float blinkTimer = 0f;
 
-    private bool allowedToDoubleJump = false;
-    private bool hasLetGoJump = false;
+    const float groundedRadius = .1f;                                          // Distance of the overlap to determine if grounded
+    [SerializeField] private float coyoteTimeCounter;
+    [SerializeField] private float coyoteTime = 0.5f;
+
+    private bool hasPressedJump = false;
+    private bool hasLetGoJump = true;
+
+    private bool hasJumped = false;    
 
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask whatIsGround;
-    [SerializeField] private bool grounded;                                     // Whether or not the player is grounded                                  // Whether or not the player is on a platform
+
+    //private LayerMask whatIsGround;
+    //private LayerMask whatIsPlatform;
+
+    //[SerializeField] private bool onGround;                                     // Whether or not the player is grounded
+    //[SerializeField] private bool onPlatform;
+
+    [SerializeField] private bool ignorePlatforms;
+
     [Range(0, .3f)][SerializeField] private float movementSmoothing = .1f;      // How much to smooth out the movement
+    [Range(0, 1f)][SerializeField] private float extraHeightTest = 0.12f;
 
     [Header("Events")]
     [Space]
@@ -44,6 +57,10 @@ public class ControllerScript : MonoBehaviour
     private void Awake()
     {
         kirbyBody = GetComponent<Rigidbody2D>();
+        kirbyBoxCollider = GetComponent<BoxCollider2D>();
+
+        //whatIsGround = LayerMask.GetMask("Ground");
+        //whatIsPlatform = LayerMask.GetMask("Platforms");
 
         OnFallingEvent ??= new UnityEvent();
         OnGroundedEvent ??= new UnityEvent();
@@ -52,37 +69,83 @@ public class ControllerScript : MonoBehaviour
 
     }
 
+    //private bool IsGrounded()
+    //{
+    //    return Physics2D.Raycast(kirbyBody.transform.position, -Vector2.up, kirbyBoxCollider.bounds.extents.y + 0.1f);
+    //}
+
+    private bool IsOnGround()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyBoxCollider.bounds.size, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Ground"));
+
+        Color rayColor;
+        if (raycastHit.collider != null)
+        {
+            rayColor = Color.green;
+            //onGround = true;
+            //Debug.Log(raycastHit.collider);
+        }
+        else
+        {
+            rayColor = Color.red;
+            //onGround = false;
+        }
+        
+        Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
+        return raycastHit.collider != null;
+    }
+
+    private bool IsOnPlatform()
+    {
+        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyBoxCollider.bounds.size, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Platforms"));
+
+        Color rayColor;
+        if (raycastHit.collider != null)
+        {
+            rayColor = Color.green;
+            //Debug.Log(raycastHit.collider);
+            //onPlatform = true;
+        }
+        else
+        {
+            rayColor = Color.red;
+            //onPlatform = false;
+        }
+
+
+
+        //Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
+        return raycastHit.collider != null;
+    }
+
     private void FixedUpdate()
     {
-        grounded = false;
-
-        // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
-        // This can be done using layers instead but Sample Assets will not overwrite your project settings.
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.position, groundedRadius, whatIsGround);
-        for (int i = 0; i < colliders.Length; i++)
+        if (IsOnGround() || (IsOnPlatform() && !ignorePlatforms))
         {
-            if (colliders[i].gameObject != gameObject)
+            coyoteTimeCounter = coyoteTime;
+
+            // Blink
+            blinkTimer += Time.deltaTime;
+            float blinkValue = Mathf.Floor(blinkInterval * UnityEngine.Random.value);
+            if (blinkTimer > blinkValue)
             {
-                // Grounded
-                grounded = true;
-                OnGroundedEvent.Invoke();
-                allowedToDoubleJump = true;
-
-                // Blink
-                blinkTimer += Time.deltaTime;
-                float blinkValue = Mathf.Floor(blinkInterval * UnityEngine.Random.value);
-                if (blinkTimer > blinkValue)
-                {
-                    OnBlinkEvent.Invoke();
-                    blinkTimer = 0;
-                }
-
-                // TODO Tripping
+                OnBlinkEvent.Invoke();
+                blinkTimer = 0;
             }
+            hasPressedJump = false;
+            OnGroundedEvent.Invoke();
+        }
+        else
+        {
+            if (coyoteTimeCounter > 0)
+            {
+                coyoteTimeCounter -= Time.deltaTime;
+            }
+            
         }
 
         // Check if Falling
-        if (kirbyBody.velocity.y < -0.01f)
+        if (kirbyBody.velocity.y < 0f)
         {
             OnFallingEvent.Invoke();
         }
@@ -92,6 +155,7 @@ public class ControllerScript : MonoBehaviour
     {
         // Move the character by finding the target velocity
         Vector3 targetVelocity = new Vector2(move * 10f, kirbyBody.velocity.y);
+
         // And then smoothing it out and applying it to the character
         kirbyBody.velocity = Vector3.SmoothDamp(kirbyBody.velocity, targetVelocity, ref velocity, movementSmoothing);
 
@@ -101,38 +165,72 @@ public class ControllerScript : MonoBehaviour
         else if (move < 0 && facingRight)
             Flip();
 
-        if (crouch || kirbyBody.velocity.y > 0f)
+        if (jump)
+        {
+            if (coyoteTimeCounter > 0f  && !hasPressedJump && hasLetGoJump) 
+            {
+                //Debug.Log("coyoteTimeCounter = " + coyoteTimeCounter);
+                hasPressedJump = true;
+                Jump(jumpForce);
+                //hasJumped = true;
+                //Debug.Log("hasPressedJump = " + hasPressedJump.ToString());
+                //Debug.Log("hasJumped = " + hasJumped.ToString());
+                //Debug.Log("hasLetGoJump = " + hasLetGoJump.ToString());
+                Debug.Log("Normal Jump");
+            }
+
+            if (coyoteTimeCounter <= 0f && !hasPressedJump && hasLetGoJump)
+            {
+                hasPressedJump = true;
+                Jump(jumpForce);
+                //hasJumped = false;
+
+                Debug.Log("Double Jump");
+            }
+
+            hasLetGoJump = false;
+        }
+
+        if (!jump)
+        {
+            hasPressedJump = false;
+            coyoteTimeCounter = 0f;
+            hasLetGoJump = true;
+        }
+
+        //if (crouch)
+        //{
+        //    StartCoroutine(IgnorePlatformsTimer());
+        //}
+
+        if (kirbyBody.velocity.y > 0.1f || crouch)
         {
             IgnorePlatforms(true);
-        } 
-        else if (!crouch && !grounded)
+            //Debug.Log("Velocity = " + kirbyBody.velocity.y);
+        }
+        if (kirbyBody.velocity.y <= 0.1f && (!crouch && !IsOnPlatform()))
         {
             IgnorePlatforms(false);
         }
-
-        // If the player should jump...
-        if (grounded && jump && Mathf.Abs(kirbyBody.velocity.y) < 0.01f)
-        {
-            Jump(jumpForce, false);
-        }
-        else if (allowedToDoubleJump && jump && hasLetGoJump)
-        {
-            Jump(jumpForce, true);
-            allowedToDoubleJump = false;
-        }
-        if (!jump) {hasLetGoJump = true;} else {hasLetGoJump = false;}
     }
 
-    private void IgnorePlatforms(bool active)
+    private void IgnorePlatforms(bool activate)
     {
-        if (active)
+        Physics2D.IgnoreLayerCollision(3, 7, activate);
+        ignorePlatforms = activate;
+        if (activate)
         {
-            Physics2D.IgnoreLayerCollision(3, 7, true);
+            //Debug.Log("ignorePlatforms = " + activate);
         }
-        else
-        {
-            Physics2D.IgnoreLayerCollision(3, 7, false);
-        }
+    }
+
+    private IEnumerator IgnorePlatformsTimer()
+    {
+        Physics2D.IgnoreLayerCollision(3, 7, true);
+        ignorePlatforms = true;
+        yield return new WaitForSeconds(0.25f);
+        Physics2D.IgnoreLayerCollision(3, 7, false);
+        ignorePlatforms = false;
     }
 
     private void Flip()
@@ -154,16 +252,16 @@ public class ControllerScript : MonoBehaviour
         facingRight = !facingRight;
     }
 
-    private void Jump(float addJumpForce, bool reset)
+    private void Jump(float addJumpForce)
     {
-        // Add a vertical force to the player.
-        grounded = false;
-        if (reset)
-        {   
-            Vector2 oldVector = kirbyBody.velocity; 
-            kirbyBody.velocity = new Vector2(oldVector.x, 0f);
-        }
+        // Stop vertical movement
+        Vector2 oldVector = kirbyBody.velocity;
+        Vector2 oldPos = kirbyBody.position;
 
+        //kirbyBody.position = new Vector2(oldPos.x, oldPos.y + 0.5f);
+        kirbyBody.velocity = new Vector2(oldVector.x, 0f);
+
+        // Add a vertical force to the player.
         kirbyBody.AddForce(new Vector2(0f, addJumpForce));
         OnJumpEvent.Invoke();
     }

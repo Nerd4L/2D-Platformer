@@ -30,6 +30,8 @@ public class PlayerScript : MonoBehaviour
         controls.Gameplay.Enable();
         kirbyBody = GetComponent<Rigidbody2D>();
 
+        //Application.targetFrameRate = -1;
+        //QualitySettings.vSyncCount = 2;
         //Time.timeScale = 0.2f;
 
         //Move Input
@@ -49,15 +51,20 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         xVelocity = Mathf.Abs(kirbyBody.velocity.x);
-        yVelocity = Mathf.Abs(kirbyBody.velocity.y);
-
-        horizontalMove = moveInput.x * moveSpeed;
-
         animator.SetFloat("Speed", xVelocity);
         if (xVelocity < 0.3f)
         {
             animator.SetFloat("Speed", 0);
-        }        
+        }
+
+        yVelocity = Mathf.Abs(kirbyBody.velocity.y);
+        animator.SetFloat("FallSpeed", kirbyBody.velocity.y);
+        if (yVelocity < 0.3f)
+        {
+            animator.SetFloat("FallSpeed", 0);
+        }
+
+        horizontalMove = moveInput.x * moveSpeed;
 
         if (jumpInput)
         {
@@ -74,33 +81,33 @@ public class PlayerScript : MonoBehaviour
 
         if (hasBlinked)
         {
-            animator.SetBool("IsBlinking", false);
+            animator.SetTrigger("IsBlinking 0");
             hasBlinked = false;
         }
     }
 
     public void IsGrounded()
     {
-        animator.SetBool("IsGrounded", true);
-        animator.SetBool("IsFalling", false);
+        animator.SetTrigger("IsGrounded 0");
+        //animator.SetTrigger("IsFalling", false);
     }
 
     public void IsFalling()
     {
-        animator.SetBool("IsFalling", true);
-        animator.SetBool("IsGrounded", false);
-        animator.SetBool("IsJumping", false);
+        animator.SetTrigger("IsFalling 0");
+        //animator.SetTrigger("IsGrounded", false);
+        //animator.SetTrigger("IsJumping", false);
     }
 
     public void IsBlinking()
     {
-        animator.SetBool("IsBlinking", true);
+        animator.SetTrigger("IsBlinking 0");
         hasBlinked = true;
     }
 
     public void IsJumping()
     {
-        animator.SetBool("IsJumping", true);
-        animator.SetBool("IsFalling", false);
+        animator.SetTrigger("IsJumping 0");
+        //animator.SetTrigger("IsFalling", false);
     }
 }
