@@ -30,8 +30,6 @@ public class PlayerScript : MonoBehaviour
         controls.Gameplay.Enable();
         kirbyBody = GetComponent<Rigidbody2D>();
 
-        //Application.targetFrameRate = -1;
-        //QualitySettings.vSyncCount = 2;
         //Time.timeScale = 0.2f;
 
         //Move Input
