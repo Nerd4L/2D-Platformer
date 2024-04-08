@@ -21,18 +21,12 @@ public class ControllerScript : MonoBehaviour
     private float blinkInterval = 100f;
     private float blinkTimer = 0f;
 
-    const float groundedRadius = .1f;                                          // Distance of the overlap to determine if grounded
     [SerializeField] private float coyoteTimeCounter;
     [SerializeField] private float coyoteTime = 0.5f;
 
     private bool hasPressedJump = false;
     private bool hasLetGoJump = true;
     private bool hasDoubleJumped = false;
-
-    [SerializeField] private Transform groundCheck;
-
-    //private LayerMask whatIsGround;
-    //private LayerMask whatIsPlatform;
 
     //[SerializeField] private bool onGround;                                     // Whether or not the player is grounded
     //[SerializeField] private bool onPlatform;
@@ -58,39 +52,23 @@ public class ControllerScript : MonoBehaviour
         kirbyBody = GetComponent<Rigidbody2D>();
         kirbyBoxCollider = GetComponent<BoxCollider2D>();
 
-        //whatIsGround = LayerMask.GetMask("Ground");
-        //whatIsPlatform = LayerMask.GetMask("Platforms");
-
         OnFallingEvent ??= new UnityEvent();
         OnGroundedEvent ??= new UnityEvent();
         OnBlinkEvent ??= new UnityEvent();
         OnJumpEvent ??= new UnityEvent();
-
     }
-
-    //private bool IsGrounded()
-    //{
-    //    return Physics2D.Raycast(kirbyBody.transform.position, -Vector2.up, kirbyBoxCollider.bounds.extents.y + 0.1f);
-    //}
 
     private bool IsOnGround()
     {
         RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyBoxCollider.bounds.size, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Ground"));
-
+        
         Color rayColor;
         if (raycastHit.collider != null)
-        {
-            rayColor = Color.green;
-            //onGround = true;
-            //Debug.Log(raycastHit.collider);
-        }
+        { rayColor = Color.green; }
         else
-        {
-            rayColor = Color.red;
-            //onGround = false;
-        }
+        { rayColor = Color.red; }
         
-        Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
+        //Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
         return raycastHit.collider != null;
     }
 
@@ -100,18 +78,9 @@ public class ControllerScript : MonoBehaviour
 
         Color rayColor;
         if (raycastHit.collider != null)
-        {
-            rayColor = Color.green;
-            //Debug.Log(raycastHit.collider);
-            //onPlatform = true;
-        }
+        { rayColor = Color.green; }
         else
-        {
-            rayColor = Color.red;
-            //onPlatform = false;
-        }
-
-
+        { rayColor = Color.red; }
 
         //Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
         return raycastHit.collider != null;
@@ -133,7 +102,6 @@ public class ControllerScript : MonoBehaviour
             }
             hasPressedJump = false;
             hasDoubleJumped = false;
-            OnGroundedEvent.Invoke();
         }
         else
         {
@@ -144,28 +112,27 @@ public class ControllerScript : MonoBehaviour
             
         }
 
-        // Check if Falling
+        // Check if going down, going up or stationary
         if (kirbyBody.velocity.y < -0.01f)
         {
             OnFallingEvent.Invoke();
         }
-
-        // Check if flying
-        if (kirbyBody.velocity.y > 0.01f)
+        else if (kirbyBody.velocity.y > 0.01f)
         {
             OnJumpEvent.Invoke();
         }
-
-        if (MathF.Abs(kirbyBody.velocity.y) < 0.01f)
+        else if (MathF.Abs(kirbyBody.velocity.y) < 0.01f)
         {
             OnGroundedEvent.Invoke();
         }
+
+        
     }
 
     public void Move(float move, bool jump, float jumpForce, bool crouch)
     {
         // Move the character by finding the target velocity
-        Vector3 targetVelocity = new Vector2(move * 10f, kirbyBody.velocity.y);
+        Vector3 targetVelocity = new Vector2(move, kirbyBody.velocity.y);
 
         // And then smoothing it out and applying it to the character
         kirbyBody.velocity = Vector3.SmoothDamp(kirbyBody.velocity, targetVelocity, ref velocity, movementSmoothing);
@@ -182,7 +149,7 @@ public class ControllerScript : MonoBehaviour
             {
                 hasPressedJump = true;
                 Jump(jumpForce);
-                Debug.Log("Normal Jump");
+                //Debug.Log("Normal Jump");
             }
 
             if (coyoteTimeCounter <= 0f && !hasPressedJump && hasLetGoJump && !hasDoubleJumped)
@@ -190,7 +157,7 @@ public class ControllerScript : MonoBehaviour
                 hasPressedJump = true;
                 Jump(jumpForce);
                 hasDoubleJumped = true;
-                Debug.Log("Double Jump");
+                //Debug.Log("Double Jump");
             }
 
             hasLetGoJump = false;

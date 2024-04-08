@@ -66,12 +66,6 @@ public class PlayerScript : MonoBehaviour
 
         horizontalMove = moveInput.x * moveSpeed;
 
-        //if (jumpInput)
-        //{
-        //    animator.SetBool("IsGrounded", false);
-        //}
-
-        //controller.DropDown(dropDown);
     }
 
     void FixedUpdate()
