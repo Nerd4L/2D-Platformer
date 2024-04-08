@@ -3,9 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Platform
-  - OneWayPlatform
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -17,7 +15,7 @@ TagManager:
   - Platforms
   - Ground
   - Enemies
-  - Above Platforms
+  - 
   - 
   - 
   - 
@@ -54,4 +52,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 112932253
+    locked: 0
+  - name: UI
+    uniqueID: 4162275183
     locked: 0
