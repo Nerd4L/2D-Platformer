@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,6 +13,9 @@ public class ControllerScript : MonoBehaviour
 {
     private Rigidbody2D kirbyBody;
     private BoxCollider2D kirbyBoxCollider;
+    public BoxCollider2D crouchCollider;
+
+    private Vector2 kirbyStandingColliderSize;
 
     public Vector2 moveInput;
     private Vector3 velocity = Vector3.zero;
@@ -43,6 +47,8 @@ public class ControllerScript : MonoBehaviour
     public UnityEvent OnGroundedEvent;
     public UnityEvent OnBlinkEvent;
     public UnityEvent OnJumpEvent;
+    public UnityEvent OnCrouchEvent;
+    public UnityEvent OnNotCrouchEvent;
 
     [System.Serializable]
     public class BoolEvent : UnityEvent<bool> { }
@@ -51,30 +57,35 @@ public class ControllerScript : MonoBehaviour
     {
         kirbyBody = GetComponent<Rigidbody2D>();
         kirbyBoxCollider = GetComponent<BoxCollider2D>();
+        kirbyStandingColliderSize = kirbyBoxCollider.bounds.size;
 
         OnFallingEvent ??= new UnityEvent();
         OnGroundedEvent ??= new UnityEvent();
         OnBlinkEvent ??= new UnityEvent();
         OnJumpEvent ??= new UnityEvent();
+        OnCrouchEvent ??= new UnityEvent();
+        OnNotCrouchEvent ??= new UnityEvent();
+
+
     }
 
     private bool IsOnGround()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyBoxCollider.bounds.size, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyStandingColliderSize, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Ground"));
         
         Color rayColor;
         if (raycastHit.collider != null)
         { rayColor = Color.green; }
         else
         { rayColor = Color.red; }
-        
-        //Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
+
+        Debug.DrawRay(this.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
         return raycastHit.collider != null;
     }
 
     private bool IsOnPlatform()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyBoxCollider.bounds.size, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Platforms"));
+        RaycastHit2D raycastHit = Physics2D.BoxCast(kirbyBoxCollider.transform.position, kirbyStandingColliderSize, 0f, Vector2.down, extraHeightTest, LayerMask.GetMask("Platforms"));
 
         Color rayColor;
         if (raycastHit.collider != null)
@@ -82,7 +93,7 @@ public class ControllerScript : MonoBehaviour
         else
         { rayColor = Color.red; }
 
-        //Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
+        Debug.DrawRay(kirbyBoxCollider.transform.position, Vector2.down * (kirbyBoxCollider.bounds.extents.y + extraHeightTest), rayColor);
         return raycastHit.collider != null;
     }
 
@@ -107,7 +118,7 @@ public class ControllerScript : MonoBehaviour
         {
             if (coyoteTimeCounter > 0)
             {
-                coyoteTimeCounter -= Time.deltaTime;
+                coyoteTimeCounter -= Time.deltaTime * 0.5f;
             }
             
         }
@@ -125,17 +136,34 @@ public class ControllerScript : MonoBehaviour
         {
             OnGroundedEvent.Invoke();
         }
-
-        
     }
 
     public void Move(float move, bool jump, float jumpForce, bool crouch)
     {
-        // Move the character by finding the target velocity
-        Vector3 targetVelocity = new Vector2(move, kirbyBody.velocity.y);
+        Vector3 targetVelocity;
+
+        // If not crouching, move the character by finding the target velocity
+        if (crouch && (IsOnGround() || IsOnPlatform()))
+        {
+            crouchCollider.enabled = true;
+            kirbyBoxCollider.enabled = false;
+            targetVelocity = new Vector2(0, kirbyBody.velocity.y);
+            OnCrouchEvent.Invoke();
+        }
+        else
+        {
+            targetVelocity = new Vector2(move, kirbyBody.velocity.y);
+        }
 
         // And then smoothing it out and applying it to the character
         kirbyBody.velocity = Vector3.SmoothDamp(kirbyBody.velocity, targetVelocity, ref velocity, movementSmoothing);
+
+        if (!crouch)
+        {
+            crouchCollider.enabled = false;
+            kirbyBoxCollider.enabled = true;
+            OnNotCrouchEvent.Invoke();
+        }
 
         // Flip the player
         if (move > 0 && !facingRight)
@@ -149,7 +177,7 @@ public class ControllerScript : MonoBehaviour
             {
                 hasPressedJump = true;
                 Jump(jumpForce);
-                //Debug.Log("Normal Jump");
+                Debug.Log("Normal Jump");
             }
 
             if (coyoteTimeCounter <= 0f && !hasPressedJump && hasLetGoJump && !hasDoubleJumped)
@@ -157,10 +185,11 @@ public class ControllerScript : MonoBehaviour
                 hasPressedJump = true;
                 Jump(jumpForce);
                 hasDoubleJumped = true;
-                //Debug.Log("Double Jump");
+                Debug.Log("Double Jump");
             }
 
             hasLetGoJump = false;
+            coyoteTimeCounter = 0f;
         }
 
         if (!jump)
@@ -171,7 +200,6 @@ public class ControllerScript : MonoBehaviour
             }
             
             hasPressedJump = false;
-            coyoteTimeCounter = 0f;
             hasLetGoJump = true;
         }
 

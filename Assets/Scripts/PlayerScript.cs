@@ -7,8 +7,8 @@ using UnityEngine.InputSystem.EnhancedTouch;
 public class PlayerScript : MonoBehaviour
 {
     public ControllerScript controller;
-    private PlayerControls controls;
     public Animator animator;
+    private PlayerControls controls;
     private Rigidbody2D kirbyBody;
 
     public float moveSpeed = 40f;
@@ -63,7 +63,6 @@ public class PlayerScript : MonoBehaviour
         }
 
         horizontalMove = moveInput.x * moveSpeed;
-
     }
 
     void FixedUpdate()
@@ -103,5 +102,14 @@ public class PlayerScript : MonoBehaviour
         animator.SetBool("IsFalling", false);
         animator.SetBool("IsGrounded", false);
         animator.SetBool("IsJumping", true);
+    }
+
+    public void IsCrouching()
+    {
+        animator.SetBool("IsCrouching", true);
+    }
+    public void IsNotCrouching()
+    {
+        animator.SetBool("IsCrouching", false);
     }
 }
