@@ -1,7 +1,7 @@
 class_name HitFX
 extends RefCounted
 
-const DEFAULT_FRAMES_PATH: String = "res://Animations/effects.tres"
+const DEFAULT_FRAMES_PATH: String = "res://Animations/star_burst_frames.tres"
 static var _cached_frames: SpriteFrames = null
 
 
