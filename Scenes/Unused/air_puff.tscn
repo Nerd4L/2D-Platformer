@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://babofjvjkitlf"]
+
+[ext_resource type="Script" uid="uid://dohauvsal0bco" path="res://Scenes/Unused/air_puff.gd" id="1_fymvu"]
+[ext_resource type="Texture2D" uid="uid://dhgvekedqrlw5" path="res://Images/Effects/effects.png" id="1_jhjyv"]
+[ext_resource type="SpriteFrames" uid="uid://d0vaf8a3euya4" path="res://Animations/effects.tres" id="2_ko5sm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(12, 4)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tjrnq"]
+atlas = ExtResource("1_jhjyv")
+region = Rect2(64, 32, 16, 16)
+
+[node name="AirPuff" type="Area2D" unique_id=308664043]
+z_index = 6
+collision_layer = 0
+collision_mask = 9
+script = ExtResource("1_fymvu")
+hit_fx_frames = ExtResource("2_ko5sm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=178919425]
+shape = SubResource("RectangleShape2D_tjrnq")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1601152168]
+texture = SubResource("AtlasTexture_tjrnq")

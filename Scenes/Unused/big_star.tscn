@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cdnki1fmaik7r"]
+
+[ext_resource type="SpriteFrames" uid="uid://d0vaf8a3euya4" path="res://Animations/effects.tres" id="1_cy5rx"]
+[ext_resource type="Script" uid="uid://7qmqptp7hp3o" path="res://Scenes/Unused/big_star.gd" id="2_rjyn0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(12, 4)
+
+[node name="BigStar" type="Area2D" unique_id=636875313]
+z_index = 6
+collision_layer = 0
+collision_mask = 9
+script = ExtResource("2_rjyn0")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1274917269]
+sprite_frames = ExtResource("1_cy5rx")
+animation = &"star_burst4"
+frame = 15
+frame_progress = 1.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1094724824]
+shape = SubResource("RectangleShape2D_tjrnq")

@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://bkr4gnp51umom"]
+
+[ext_resource type="Script" uid="uid://d1scxuyefrxtl" path="res://Scenes/UI/hud.gd" id="1_ny26j"]
+[ext_resource type="Texture2D" uid="uid://bhf1cbgrmj5s7" path="res://Images/Other/HUD.png" id="1_sprlj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8glcj"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(16, 24, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vsu76"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(24, 24, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ny26j"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(8, 24, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fdl0h"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(0, 24, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tsw34"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(32, 0, 8, 8)
+
+[node name="HUD" type="CanvasLayer" unique_id=398389498]
+layer = 90
+script = ExtResource("1_ny26j")
+pip_full_texture = SubResource("AtlasTexture_8glcj")
+pip_empty_texture = SubResource("AtlasTexture_vsu76")
+
+[node name="Container" type="Control" parent="." unique_id=639088831]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 128.0
+offset_right = 160.0
+offset_bottom = 144.0
+
+[node name="Background" type="ColorRect" parent="Container" unique_id=1105343635]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 16.0
+
+[node name="KirbyIcon" type="TextureRect" parent="Container" unique_id=663538760]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 8.0
+offset_right = 120.0
+offset_bottom = 16.0
+texture = SubResource("AtlasTexture_ny26j")
+
+[node name="LivesCross" type="TextureRect" parent="Container" unique_id=1911923753]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 8.0
+offset_right = 128.0
+offset_bottom = 16.0
+texture = SubResource("AtlasTexture_fdl0h")
+
+[node name="LivesNumber" type="TextureRect" parent="Container" unique_id=106443678]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 8.0
+offset_right = 136.0
+offset_bottom = 16.0
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Container" unique_id=1615856785]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 8.0
+offset_right = 104.0
+offset_bottom = 16.0
+theme_override_constants/separation = 0
+
+[node name="Pip1" type="TextureRect" parent="Container/HBoxContainer" unique_id=27622943]
+layout_mode = 2
+
+[node name="Pip2" type="TextureRect" parent="Container/HBoxContainer" unique_id=208972175]
+layout_mode = 2
+
+[node name="Pip3" type="TextureRect" parent="Container/HBoxContainer" unique_id=547624964]
+layout_mode = 2
+
+[node name="Pip4" type="TextureRect" parent="Container/HBoxContainer" unique_id=712156238]
+layout_mode = 2
+
+[node name="Pip5" type="TextureRect" parent="Container/HBoxContainer" unique_id=1728870142]
+layout_mode = 2
+
+[node name="Pip6" type="TextureRect" parent="Container/HBoxContainer" unique_id=1247218006]
+layout_mode = 2
