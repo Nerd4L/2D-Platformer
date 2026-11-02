@@ -1,9 +1,9 @@
 class_name ScreenFader
 extends CanvasLayer
 
-static var instance: ScreenFader
+static var instance: ScreenFader = null
 
-@onready var color_rect: ColorRect = $ColorRect
+var color_rect: ColorRect
 var _material: ShaderMaterial
 
 const FADE_SHADER_CODE: String = """
@@ -21,36 +21,54 @@ void fragment() {
 """
 
 func _ready() -> void:
+	instance = self
 	layer = 100
 	visible = false
-	instance = self
-	
+	process_mode = Node.PROCESS_MODE_ALWAYS # Runs even when the game is paused!
+	_setup_rect()
+
+
+func _setup_rect() -> void:
 	if not color_rect:
-		color_rect = ColorRect.new()
-		color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		color_rect.size = Vector2(160.0, 128.0)
-		add_child(color_rect)
-		
+		color_rect = get_node_or_null("ColorRect") as ColorRect
+		if not color_rect:
+			color_rect = ColorRect.new()
+			color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			color_rect.size = Vector2(160.0, 128.0) # Playable Game Boy screen area
+			add_child(color_rect)
+
 	var shader := Shader.new()
 	shader.code = FADE_SHADER_CODE
 	_material = ShaderMaterial.new()
 	_material.shader = shader
 	color_rect.material = _material
 
-## 3-step authentic Game Boy palette wipe:
-## to_white = true: 0 -> 1 -> 2 -> 3
-## to_white = false: 3 -> 2 -> 1 -> 0
-func fade(to_white: bool, step_delay: float = 0.055) -> void:
-	visible = true
-	var steps: Array[int] = [1, 2, 3] if to_white else [2, 1, 0]
+
+## Usage: await ScreenFader.fade(true)  (fades to white)
+##        await ScreenFader.fade(false) (fades from white to game)
+static func fade(to_white: bool, step_delay: float = 0.055) -> void:
 	
+	# Auto-instantiate if ScreenFader was not pre-placed in the scene
+	if not instance:
+		var fader := ScreenFader.new()
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree and tree.root:
+			tree.root.add_child(fader)
+
+	await instance._do_fade(to_white, step_delay)
+
+
+func _do_fade(to_white: bool, step_delay: float) -> void:
+	visible = true
+	var steps: Array = [1, 2, 3] if to_white else [2, 1, 0]
+
 	if not to_white:
 		_material.set_shader_parameter("fade_step", 3)
-		await get_tree().create_timer(step_delay).timeout
+		await get_tree().create_timer(step_delay, true).timeout
 
 	for s in steps:
 		_material.set_shader_parameter("fade_step", s)
-		await get_tree().create_timer(step_delay).timeout
+		await get_tree().create_timer(step_delay, true).timeout
 
 	if not to_white:
 		visible = false
