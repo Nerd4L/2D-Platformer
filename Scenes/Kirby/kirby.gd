@@ -92,6 +92,7 @@ var start_pos: Vector2
 var facing_right: bool = true
 var coyote_time_counter: float = 0.0
 var fall_start_y: float = 0.0
+const BASE_SPRITE_OFFSET := Vector2(0.0, -4.0)
 
 var current_health: int = 6
 var lives: int = 4
@@ -232,6 +233,7 @@ func reset_state() -> void:
 		float_collider.set_deferred("disabled", true)
 
 	if anim_sprite:
+		anim_sprite.offset = BASE_SPRITE_OFFSET
 		anim_sprite.visible = true
 	health_changed.emit(current_health, max_health)
 
@@ -869,7 +871,7 @@ func _handle_impacts(was_on_floor: bool, was_on_wall: bool, pre_vx: float, falle
 	if not is_tumbling and is_on_wall() and not was_on_wall and absf(pre_vx) > move_speed * 0.8:
 		_spawn_impact_star()
 		wall_squish_timer = 0.12
-		anim_sprite.position.x = 2.0 if pre_vx > 0.0 else -2.0
+		anim_sprite.offset.x = BASE_SPRITE_OFFSET.x + (2.0 if pre_vx > 0.0 else -2.0)
 
 	if is_on_floor() and not was_on_floor:
 		if not has_bounced and (fallen_px >= star_fall_distance or is_tumbling):
@@ -936,7 +938,7 @@ func _enter_door(door: Door) -> void:
 
 	is_entering_door = true
 	velocity = Vector2.ZERO
-	anim_sprite.position = Vector2.ZERO
+	anim_sprite.offset = BASE_SPRITE_OFFSET
 
 	standing_collider.disabled = false
 	crouch_collider.disabled = true
@@ -1042,8 +1044,8 @@ func _update_animations(delta: float) -> void:
 		return
 
 	if wall_squish_timer <= 0.0:
-		anim_sprite.position.x = 0.0
-	anim_sprite.position.y = 0.0
+		anim_sprite.offset.x = BASE_SPRITE_OFFSET.x
+	anim_sprite.offset.y = BASE_SPRITE_OFFSET.y
 
 	if has_bounced:
 		_reset_blink_timer()
@@ -1070,7 +1072,7 @@ func _update_animations(delta: float) -> void:
 			return
 		anim_sprite.play("float_flap" if is_flapping else "float")
 		if anim_sprite.frame == 0:
-			anim_sprite.position.y = 1.0
+			anim_sprite.offset.y = BASE_SPRITE_OFFSET.y + 1.0
 		return
 
 	if is_inhale_recovering:
@@ -1088,9 +1090,9 @@ func _update_animations(delta: float) -> void:
 		if absf(velocity.x) > 5.0:
 			anim_sprite.play("mouthful_walk")
 			if anim_sprite.frame == 1:
-				anim_sprite.position.y = 1.0
+				anim_sprite.offset.y = BASE_SPRITE_OFFSET.y + 1.0
 			elif anim_sprite.frame == 0:
-				anim_sprite.position.x = 1.0
+				anim_sprite.offset.x = BASE_SPRITE_OFFSET.x + 1.0
 		else:
 			anim_sprite.play("mouthful_idle")
 		return
