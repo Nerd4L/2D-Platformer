@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://bkocnokjp2jyl" path="res://Scenes/Enemies/waddle_dee.tscn" id="4_13kcy"]
 [ext_resource type="Script" uid="uid://ditpsr0yeqirw" path="res://Scenes/Level Objects/door.gd" id="5_joajk"]
 [ext_resource type="PackedScene" uid="uid://bkr4gnp51umom" path="res://Scenes/UI/hud.tscn" id="6_qhhv5"]
-[ext_resource type="Script" uid="uid://d1scxuyefrxtl" path="res://Scenes/UI/hud.gd" id="7_53r2y"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
 size = Vector2(4, 16)
@@ -92,4 +91,3 @@ offset_right = 768.0
 offset_bottom = -96.0
 
 [node name="HUD" parent="." unique_id=398389498 instance=ExtResource("6_qhhv5")]
-script = ExtResource("7_53r2y")
