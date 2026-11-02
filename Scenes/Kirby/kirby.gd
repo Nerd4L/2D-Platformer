@@ -20,7 +20,7 @@ signal score_changed(current_score: int)
 @export var hurtbox: Area2D
 @export var max_health: int = 6
 @export var starting_lives: int = 4
-@export var invulnerability_duration: float = 1.6
+@export var invulnerability_duration: float = 3
 @export var hurt_recoil_time: float = 0.32
 @export var knockback_horizontal: float = 80.0
 @export var knockback_vertical: float = -110.0
