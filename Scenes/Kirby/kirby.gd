@@ -25,7 +25,7 @@ signal score_changed(current_score: int)
 @export var knockback_horizontal: float = 80.0
 @export var knockback_vertical: float = -110.0
 
-@export_category("Normal Movement (Game Boy Tuned)")
+@export_category("Normal Movement")
 @export var move_speed: float = 75.0
 @export var jump_velocity: float = -178.0 # ~37.7px max jump height
 @export var normal_gravity: float = 420.0
@@ -34,6 +34,8 @@ signal score_changed(current_score: int)
 @export var ground_decel: float = 320.0
 @export var air_decel: float = 97.5
 @export var coyote_time: float = 0.12
+@export var platform_drop_crouch_time: float = 0.08
+@export var platform_drop_ignore_time: float = 0.18
 
 @export_category("Float Settings")
 @export var float_air_speed: float = 40.0
@@ -57,6 +59,7 @@ signal score_changed(current_score: int)
 @export_category("Mouthful & Projectiles")
 @export var is_mouthful: bool = false
 @export var projectile_scene: PackedScene
+@export var projectile_spawn_offset: Vector2 = Vector2(10.0, 0.0)
 
 @export_category("Collision, Animation & Level")
 @export var standing_collider: CollisionShape2D
@@ -65,6 +68,7 @@ signal score_changed(current_score: int)
 @export var anim_sprite: AnimatedSprite2D
 @export var terrain_layer: TileMapLayer
 @export var starting_camera_room: ReferenceRect
+@export var hud_height: float = 16.0
 
 @export_category("Fall Bounce & Impact Star")
 @export var tumble_fall_distance: float = 48.0
@@ -488,7 +492,7 @@ func _spawn_projectile(proj_type: Projectile.Type) -> void:
 		return
 	var proj := projectile_scene.instantiate() as Projectile
 	var p_dir: float = 1.0 if facing_right else -1.0
-	proj.global_position = global_position + Vector2(10.0 * p_dir, 0.0)
+	proj.global_position = global_position + Vector2(projectile_spawn_offset.x * p_dir, projectile_spawn_offset.y)
 	get_parent().add_child(proj)
 	proj.setup(proj_type, p_dir)
 
@@ -747,9 +751,9 @@ func _handle_death() -> void:
 	
 	# Dynamically calculates half the screen height, regardless of resolution or aspect ratio
 	var viewport_half_height: float = get_viewport_rect().size.y * 0.5
-	var exit_margin: float = 24.0 # Padding so his entire sprite clears the edge
-	var screen_bottom: float = (cam.get_screen_center_position().y + viewport_half_height + exit_margin) if cam else (global_position.y + 200.0)
-
+	var exit_margin: float = 24.0
+	var screen_bottom: float = (cam.get_screen_center_position().y + viewport_half_height + exit_margin) if cam else (global_position.y + get_viewport_rect().size.y + exit_margin)
+	
 	# Hop up (pinning camera in place)
 	var hop_pos := global_position + Vector2(0.0, -death_hop_height)
 	var hop_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -831,8 +835,8 @@ func _handle_horizontal_movement(delta: float, busy_action: bool) -> void:
 func _handle_one_way_platforms(delta: float) -> void:
 	if is_crouching and is_on_floor():
 		platform_crouch_delay += delta
-		if platform_crouch_delay >= 0.08:
-			platform_drop_timer = 0.18
+		if platform_crouch_delay >= platform_drop_crouch_time:
+			platform_drop_timer = platform_drop_ignore_time
 			platform_crouch_delay = 0.0
 			position.y += 1.0
 	else:
@@ -923,10 +927,13 @@ func _get_overlapping_door() -> Door:
 	for node in get_tree().get_nodes_in_group("doors"):
 		var door := node as Door
 		if door and door.overlaps_body(self):
-			var door_col := door.get_node_or_null("CollisionShape2D") as Node2D
-			var door_y: float = door_col.global_position.y if door_col else door.global_position.y
-			var dy: float = global_position.y - door_y
-			if dy <= 2.0 and dy >= -12.0:
+			var door_col := door.get_node_or_null("CollisionShape2D") as CollisionShape2D
+			if door_col and door_col.shape:
+				var door_half_h: float = door_col.shape.get_rect().size.y * 0.5
+				var dy: float = global_position.y - door_col.global_position.y
+				if dy >= -door_half_h and dy <= door_half_h + 4.0:
+					return door
+			else:
 				return door
 	return null
 
@@ -988,7 +995,7 @@ func set_camera_room(room: ReferenceRect) -> void:
 	cam.limit_left = int(rect.position.x)
 	cam.limit_top = int(rect.position.y)
 	cam.limit_right = int(rect.end.x)
-	cam.limit_bottom = int(rect.end.y) + 16
+	cam.limit_bottom = int(rect.end.y + hud_height)
 	cam.reset_smoothing()
 
 
@@ -1001,13 +1008,13 @@ func _setup_terrain_camera_limits() -> void:
 	cam.limit_left = int(top_left.x)
 	cam.limit_top = int(top_left.y)
 	cam.limit_right = int(bottom_right.x)
-	cam.limit_bottom = int(bottom_right.y) + 16
+	cam.limit_bottom = int(bottom_right.y + hud_height)
 
 
 func _clamp_to_level_bounds() -> void:
 	if not cam or not cam.limit_enabled:
 		return
-	var half_width: float = 12.0 if (is_floating or is_mouthful) else 8.0
+	var half_width: float = _get_current_half_width()
 	var min_x: float = cam.limit_left + half_width
 	var max_x: float = cam.limit_right - half_width
 
@@ -1186,6 +1193,17 @@ func _spawn_death_trail_stars() -> void:
 			tw.tween_callback(s.queue_free)
 
 		await get_tree().create_timer(0.18, true).timeout
+
+
+# -----------------------------------------------------------------------------
+# Dynamic numbers
+# -----------------------------------------------------------------------------
+func _get_current_half_width() -> float:
+	var active_col: CollisionShape2D = float_collider if (is_floating or is_mouthful) else (crouch_collider if is_crouching else standing_collider)
+	if active_col and active_col.shape:
+		return active_col.shape.get_rect().size.x * 0.5
+	return 8.0 # Fallback
+
 
 # -----------------------------------------------------------------------------
 # Pausing and fullscreen
