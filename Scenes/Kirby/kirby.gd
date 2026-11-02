@@ -11,6 +11,11 @@ signal score_changed(current_score: int)
 # -----------------------------------------------------------------------------
 # EXPORT CATEGORIES
 # -----------------------------------------------------------------------------
+@export_category("Input buffering")
+# 0.12 == ~7 frames of input memory
+@export var jump_buffer_time: float = 0.12   
+@export var action_buffer_time: float = 0.12
+
 @export_category("Health & Damage")
 @export var hurtbox: Area2D
 @export var max_health: int = 6
@@ -70,8 +75,8 @@ signal score_changed(current_score: int)
 @export_category("Death Animation")
 @export var death_hop_height: float = 26.0
 @export var death_hop_duration: float = 0.4
-@export var death_fall_distance: float = 110.0
-@export var death_fall_duration: float = 0.7
+#@export var death_fall_distance: float = 110.0
+#@export var death_fall_duration: float = 0.7
 
 @onready var cam: Camera2D = $Camera2D
 
@@ -94,6 +99,8 @@ var hurt_timer: float = 0.0
 var invulnerable_timer: float = 0.0
 var blink_interval: float = 0.06
 var blink_timer: float = 0.0
+var jump_buffer_counter: float = 0.0
+var action_buffer_counter: float = 0.0
 
 var is_crouching: bool = false
 var is_floating: bool = false
@@ -180,6 +187,8 @@ func _input(event: InputEvent) -> void:
 			_handle_death()
 		elif event.keycode == KEY_P:
 			toggle_pause()
+		elif event.keycode == KEY_F11 or (event.keycode == KEY_ENTER and event.alt_pressed):
+			toggle_fullscreen()
 
 
 func reset_state() -> void:
@@ -187,6 +196,10 @@ func reset_state() -> void:
 	is_dying = false
 	set_world_paused(false)
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	if cam:
+		cam.position = Vector2.ZERO
+		cam.reset_smoothing()
 	
 	global_position = start_pos
 	if starting_camera_room:
@@ -263,6 +276,18 @@ func _physics_process(delta: float) -> void:
 	_cleanup_invalid_enemies()
 	_update_action_timers(delta)
 	_update_hurt_and_invulnerability(delta)
+	_check_crush_overlap()
+	
+	# Input buffering
+	if Input.is_action_just_pressed("jump"):
+		jump_buffer_counter = jump_buffer_time
+	else:
+		jump_buffer_counter = maxf(jump_buffer_counter - delta, 0.0)
+
+	if Input.is_action_just_pressed("action"):
+		action_buffer_counter = action_buffer_time
+	else:
+		action_buffer_counter = maxf(action_buffer_counter - delta, 0.0)
 
 	# Knockback recoil state
 	if is_hurt:
@@ -347,14 +372,16 @@ func _handle_jump_and_float_actions(busy_action: bool, near_door: bool) -> void:
 			is_tumbling = false
 			velocity.y = float_up_velocity
 			anim_sprite.play("float_startup")
-		elif not busy_inhaling and Input.is_action_just_pressed("jump") and coyote_time_counter > 0.0:
+		elif not busy_inhaling and jump_buffer_counter > 0.0 and (is_on_floor() or coyote_time_counter > 0.0):
 			velocity.y = jump_velocity
+			jump_buffer_counter = 0.0
 			coyote_time_counter = 0.0
 	elif is_floating:
 		if Input.is_action_pressed("float_up") or Input.is_action_pressed("jump"):
 			velocity.y = float_up_velocity
 			is_flapping = true
-		if Input.is_action_just_pressed("action"):
+		if action_buffer_counter > 0.0:
+			action_buffer_counter = 0.0
 			_exhale_air_puff()
 
 	# Variable jump height cut
@@ -367,25 +394,29 @@ func _handle_jump_and_float_actions(busy_action: bool, near_door: bool) -> void:
 # -----------------------------------------------------------------------------
 func _handle_inhale_and_mouth_actions(busy_action: bool) -> void:
 	if is_mouthful and not busy_action and not has_bounced:
-		if Input.is_action_just_pressed("action"):
+		if action_buffer_counter > 0.0:
+			action_buffer_counter = 0.0
 			_spit_star()
-		elif Input.is_action_just_pressed("crouch") and is_on_floor():
+			return
+		elif (Input.is_action_just_pressed("crouch") or Input.is_action_pressed("crouch")) and is_on_floor():
 			_swallow_mouthful()
+			return
 
-	var can_inhale: bool = not is_floating and not is_exhaling and not is_mouthful and not busy_action and not has_bounced
+	var can_inhale: bool = not is_floating and not is_exhaling and not is_mouthful and not busy_action and not has_bounced and not is_inhale_recovering
 
 	if can_inhale:
 		if Input.is_action_pressed("float_up") and inhaling_enemies.is_empty():
 			is_inhaling = false
 			is_inhale_recovering = false
 			_clear_inhale_particles()
-		elif Input.is_action_just_pressed("action") and not is_inhaling and not is_inhale_recovering and not is_crouching:
+		elif (action_buffer_counter > 0.0 or Input.is_action_pressed("action")) and not is_inhaling and not is_crouching:
+			action_buffer_counter = 0.0
 			is_inhaling = true
+			is_inhale_recovering = false
 			is_tumbling = false
 			wall_squish_timer = 0.0
 			anim_sprite.play("inhale_recovery")
 		elif is_inhaling and not Input.is_action_pressed("action") and inhaling_enemies.is_empty():
-			# Released with no enemy -> clear particles instantly
 			is_inhaling = false
 			is_inhale_recovering = true
 			_clear_inhale_particles()
@@ -540,7 +571,7 @@ func _cleanup_invalid_enemies() -> void:
 # COMBAT, DAMAGE & KNOCKBACK
 # -----------------------------------------------------------------------------
 func _on_hurtbox_entered(collider: Node2D) -> void:
-	# Enemies currently trapped in Kirby's inhale vortex cannot damage him!
+	# Enemies trapped in inhale vortex cannot damage him
 	if inhaling_enemies.has(collider):
 		return
 
@@ -556,15 +587,58 @@ func _on_hurtbox_entered(collider: Node2D) -> void:
 		or collider.is_in_group("enemies")
 	)
 	
-	if not is_enemy:
+	# Future-proof hazards: Spikes, environmental traps, or enemy projectiles
+	var is_hazard: bool = (
+		collider.is_in_group("hazards")
+		or collider.is_in_group("spikes")
+		or collider.is_in_group("enemy_projectiles")
+		or enemy_node.is_in_group("hazards")
+		or enemy_node.is_in_group("spikes")
+	)
+	
+	if not is_enemy and not is_hazard:
 		return
 
-	if is_invulnerable:
-		# Kirby is invincible! Destroy the enemy he hit
+	# 1. INVINCIBILITY (i-frames or Super Star candy)
+	if is_invulnerable and not is_hazard:
 		_damage_enemy(enemy_node)
-	else:
-		take_damage(1, enemy_node.global_position)
+		return
 
+	# 2. TUMBLE ATTACK:
+	# While tumbling downward (before the bounce), Kirby crushes enemies without taking damage!
+	var is_tumbling_attack: bool = is_tumbling and not has_bounced
+	if is_tumbling_attack and is_enemy and not is_hazard:
+		_crush_enemy(enemy_node)
+		return # Kirby crushes the enemy and takes NO damage!
+
+	# 3. NORMAL DAMAGE (includes the ensuing bounce, walking into enemies, or hitting hazards/spikes)
+	take_damage(1, enemy_node.global_position)
+
+func _crush_enemy(enemy_node: Node2D) -> void:
+	_damage_enemy(enemy_node)
+	velocity.y = 0.0
+	fall_start_y = global_position.y
+	is_tumbling = false
+
+func _check_crush_overlap() -> void:
+	if not hurtbox:
+		return
+
+	var is_tumbling_downward: bool = is_tumbling and not has_bounced
+	if not is_invulnerable and not is_tumbling_downward:
+		return
+
+	for body in hurtbox.get_overlapping_bodies():
+		if inhaling_enemies.has(body):
+			continue
+		var is_enemy: bool = body.get_collision_layer_value(4) or body.is_in_group("enemies") or body.is_in_group("inhaleable")
+		var is_hazard: bool = body.is_in_group("hazards") or body.is_in_group("spikes") or body.is_in_group("enemy_projectiles")
+
+		if is_enemy and not is_hazard:
+			if is_tumbling_downward:
+				_crush_enemy(body)
+			elif is_invulnerable:
+				_damage_enemy(body)
 
 func _damage_enemy(enemy: Node2D) -> void:
 	if not is_instance_valid(enemy):
@@ -659,15 +733,41 @@ func _handle_death() -> void:
 	if hurtbox:
 		hurtbox.set_deferred("monitoring", false)
 
-	# 3. Freeze and Death hop: Pop up, then drop down off-screen while spinning
+	# 3. Freeze 
 	await get_tree().create_timer(0.75, true).timeout
+	
+	# 3B. Death fireworks
+	_spawn_death_fireworks()
+	
+	# 3A. Pop up, then drop down off-screen while spinning
 	anim_sprite.play("death")
-	var death_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+
+	# Lock camera in place so it stops tracking Kirby while he dies
+	var saved_cam_pos: Vector2 = cam.global_position if cam else Vector2.ZERO
+	
+	# Dynamically calculates half the screen height, regardless of resolution or aspect ratio
+	var viewport_half_height: float = get_viewport_rect().size.y * 0.5
+	var exit_margin: float = 24.0 # Padding so his entire sprite clears the edge
+	var screen_bottom: float = (cam.get_screen_center_position().y + viewport_half_height + exit_margin) if cam else (global_position.y + 200.0)
+
+	# Hop up (pinning camera in place)
 	var hop_pos := global_position + Vector2(0.0, -death_hop_height)
-	var fall_pos := global_position + Vector2(0.0, death_fall_distance)
-	death_tween.tween_property(self, "global_position", hop_pos, death_hop_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	death_tween.tween_property(self, "global_position", fall_pos, death_fall_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await death_tween.finished
+	var hop_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	hop_tween.tween_property(self, "global_position", hop_pos, death_hop_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	while hop_tween.is_running():
+		await get_tree().process_frame
+		if cam:
+			cam.global_position = saved_cam_pos
+
+	# Fall down until completely past the dynamic screen bottom
+	var death_fall_speed: float = 40.0
+	while global_position.y < screen_bottom:
+		await get_tree().process_frame
+		var dt: float = get_process_delta_time()
+		death_fall_speed = minf(death_fall_speed + 540.0 * dt, 320.0)
+		global_position.y += death_fall_speed * dt
+		if cam:
+			cam.global_position = saved_cam_pos
 
 	# 4. Fade to white
 	await ScreenFader.fade(true)
@@ -708,7 +808,7 @@ func add_score(points: int) -> void:
 # -----------------------------------------------------------------------------
 func _handle_horizontal_movement(delta: float, busy_action: bool) -> void:
 	var move_dir: float = Input.get_axis("move_left", "move_right")
-	var lock_input: bool = is_crouching or is_inhaling or busy_action
+	var lock_input: bool = is_crouching or is_inhaling or is_inhale_recovering or busy_action
 	var effective_dir: float = 0.0 if lock_input else move_dir
 	var current_max_speed: float = float_air_speed if is_floating else move_speed
 	var target_speed: float = effective_dir * current_max_speed
@@ -805,13 +905,6 @@ func _spawn_impact_star(spawn_pos: Vector2 = Vector2.INF) -> void:
 
 func _update_action_timers(delta: float) -> void:
 	_update_hurt_and_invulnerability(delta)
-	# While invincible, destroy any enemies Kirby touches
-	if is_invulnerable and hurtbox:
-		for body in hurtbox.get_overlapping_bodies():
-			if not inhaling_enemies.has(body):
-				var is_enemy: bool = body.get_collision_layer_value(4) or body.is_in_group("enemies") or body.is_in_group("inhaleable")
-				if is_enemy:
-					_damage_enemy(body)
 
 	if swallow_spit_timer > 0.0:
 		swallow_spit_timer -= delta
@@ -1019,6 +1112,84 @@ func _update_animations(delta: float) -> void:
 			anim_sprite.play("blink")
 			_reset_blink_timer()
 
+# -----------------------------------------------------------------------------
+# DEATH FIREWORKS (Authentic Game Boy Effect)
+# -----------------------------------------------------------------------------
+func _spawn_death_fireworks() -> void:
+	# 1. Spawn 8-directional big stars
+	var effects_frames: SpriteFrames = null
+	if ResourceLoader.exists("res://Animations/effects.tres"):
+		effects_frames = load("res://Animations/effects.tres") as SpriteFrames
+
+	for i in range(8):
+		var angle: float = float(i) * (TAU / 8.0)
+		_spawn_single_firework_star(Vector2.from_angle(angle), effects_frames)
+
+	# 2. Spawn 5 trailing small stars during his jump and fall
+	_spawn_death_trail_stars()
+
+
+func _spawn_single_firework_star(dir_vec: Vector2, frames: SpriteFrames) -> void:
+	var star := AnimatedSprite2D.new()
+	if frames and frames.has_animation("rotating_star"):
+		star.sprite_frames = frames
+		star.play("rotating_star")
+
+	star.z_index = 10
+	star.global_position = global_position
+	star.add_to_group("effects")
+	get_parent().add_child(star)
+
+	var target_pos: Vector2 = global_position + dir_vec * 50.0
+	var tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(star, "global_position", target_pos, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	# Big star briefly turns into a small star at the end before vanishing
+	tween.tween_callback(func():
+		if is_instance_valid(star):
+			var end_pos: Vector2 = star.global_position
+			star.queue_free()
+			_spawn_brief_small_star(end_pos, 0.15)
+	)
+
+
+func _spawn_brief_small_star(pos: Vector2, lifetime: float) -> void:
+	if not star_particle_texture:
+		return
+	var small_star := Sprite2D.new()
+	small_star.texture = star_particle_texture
+	small_star.z_index = 10
+	small_star.global_position = pos
+	small_star.add_to_group("effects")
+	get_parent().add_child(small_star)
+
+	var t := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	t.tween_interval(lifetime)
+	t.tween_callback(small_star.queue_free)
+
+
+func _spawn_death_trail_stars() -> void:
+	for i in range(5):
+		if not is_dying:
+			break
+		if star_particle_texture:
+			var s := Sprite2D.new()
+			s.texture = star_particle_texture
+			s.z_index = 10
+			s.global_position = global_position + Vector2(randf_range(-4, 4), randf_range(-4, 4))
+			s.add_to_group("effects")
+			get_parent().add_child(s)
+
+			var drift_pos := s.global_position + Vector2.from_angle(randf_range(0.0, TAU)) * randf_range(10.0, 18.0)
+			var tw := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+			tw.tween_property(s, "global_position", drift_pos, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tw.tween_callback(s.queue_free)
+
+		await get_tree().create_timer(0.18, true).timeout
+
+# -----------------------------------------------------------------------------
+# Pausing and fullscreen
+# -----------------------------------------------------------------------------
 ## Unified world pause controller (shared by the Pause button and the Death sequence)
 func set_world_paused(should_pause: bool) -> void:
 	get_tree().paused = should_pause
@@ -1029,10 +1200,17 @@ func set_world_paused(should_pause: bool) -> void:
 		if anim_sprite and not is_dying:
 			anim_sprite.play()
 
-
 ## Player pause toggle (P)
 func toggle_pause() -> void:
 	if is_dying:
 		return
 	is_game_paused = not is_game_paused
 	set_world_paused(is_game_paused)
+
+func toggle_fullscreen() -> void:
+	var current_mode := DisplayServer.window_get_mode(DisplayServer.MAIN_WINDOW_ID)
+	
+	if current_mode == DisplayServer.WINDOW_MODE_FULLSCREEN or current_mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED, DisplayServer.MAIN_WINDOW_ID)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN, DisplayServer.MAIN_WINDOW_ID)
