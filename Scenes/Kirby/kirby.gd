@@ -67,11 +67,18 @@ signal score_changed(current_score: int)
 @export var bounce_velocity: float = -95.0
 @export var star_particle_texture: Texture2D
 
+@export_category("Death Animation")
+@export var death_hop_height: float = 26.0
+@export var death_hop_duration: float = 0.4
+@export var death_fall_distance: float = 110.0
+@export var death_fall_duration: float = 0.7
+
 @onready var cam: Camera2D = $Camera2D
 
 # -----------------------------------------------------------------------------
 # INTERNAL STATE
 # -----------------------------------------------------------------------------
+var is_game_paused: bool = false
 var start_pos: Vector2
 var facing_right: bool = true
 var coyote_time_counter: float = 0.0
@@ -98,6 +105,7 @@ var is_swallowing: bool = false
 var is_spitting: bool = false
 var is_tumbling: bool = false
 var has_bounced: bool = false
+var is_dying: bool = false
 
 var is_entering_door: bool = false
 var waiting_for_up_release: bool = false
@@ -111,15 +119,14 @@ var blink_wait_time: float = 3.5
 var inhaling_enemies: Array[Node2D] = []
 var active_particles: Array[Sprite2D] = []
 
-# Persistent screen fader
-var _fade_layer: CanvasLayer = null
-var _fade_mat: ShaderMaterial = null
-
 
 # -----------------------------------------------------------------------------
 # SETUP & RESET
 # -----------------------------------------------------------------------------
 func _ready() -> void:
+	# Make sure the game can listen for the unpause key when paused
+	process_mode = Node.PROCESS_MODE_ALWAYS 
+	
 	# Automatic fallback if inspector slots were unlinked
 	if not inhale_pivot:
 		inhale_pivot = get_node_or_null("InhalePivot")
@@ -166,10 +173,20 @@ func _emit_initial_stats() -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
-			get_tree().call_group("resettable", "reset_state")
+			full_reset()
+		elif event.keycode == KEY_F:
+			take_damage(1, self.global_position)
+		elif event.keycode == KEY_E:
+			_handle_death()
+		elif event.keycode == KEY_P:
+			toggle_pause()
 
 
 func reset_state() -> void:
+	is_game_paused = false
+	is_dying = false
+	set_world_paused(false)
+	
 	global_position = start_pos
 	if starting_camera_room:
 		set_camera_room(starting_camera_room)
@@ -180,10 +197,22 @@ func reset_state() -> void:
 		_flip()
 
 	current_health = max_health
+	is_dying = false
 	is_hurt = false
 	is_invulnerable = false
 	hurt_timer = 0.0
 	invulnerable_timer = 0.0
+
+	# Re-enable Hurtbox and Standing Collider
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", true)
+	if standing_collider:
+		standing_collider.set_deferred("disabled", false)
+	if crouch_collider:
+		crouch_collider.set_deferred("disabled", true)
+	if float_collider:
+		float_collider.set_deferred("disabled", true)
+
 	if anim_sprite:
 		anim_sprite.visible = true
 	health_changed.emit(current_health, max_health)
@@ -213,11 +242,23 @@ func reset_state() -> void:
 		cam.reset_smoothing()
 	anim_sprite.play("idle")
 
+## Full run restart (used by 'R' key and Game Over screen)
+func full_reset() -> void:
+	lives = starting_lives
+	score = 0
+	lives_changed.emit(lives)
+	score_changed.emit(score)
+	get_tree().call_group("effects", "queue_free")
+	get_tree().call_group("resettable", "reset_state")
 
 # -----------------------------------------------------------------------------
 # MAIN PHYSICS LOOP
 # -----------------------------------------------------------------------------
 func _physics_process(delta: float) -> void:
+	# Freeze all Kirby physics and updates while paused or dying
+	if is_game_paused or is_dying:
+		return
+
 	_cleanup_invalid_enemies()
 	_update_action_timers(delta)
 	_update_hurt_and_invulnerability(delta)
@@ -537,28 +578,45 @@ func _damage_enemy(enemy: Node2D) -> void:
 
 
 func take_damage(amount: int, source_pos: Vector2) -> void:
-	if is_invulnerable or is_entering_door:
+	if is_dying or is_invulnerable or is_entering_door:
 		return
 
 	current_health = max(current_health - amount, 0)
 	health_changed.emit(current_health, max_health)
 
-	# 1. Knockback recoil
-	is_hurt = true
-	hurt_timer = hurt_recoil_time
-	var knock_dir: float = -1.0 if (source_pos.x > global_position.x) else 1.0
-	velocity.x = knock_dir * knockback_horizontal
-	velocity.y = knockback_vertical
-
-	# 2. Invincibility
-	is_invulnerable = true
-	invulnerable_timer = invulnerability_duration
-
-	if anim_sprite and anim_sprite.sprite_frames.has_animation("hurt"):
-		anim_sprite.play("hurt")
-
 	if current_health <= 0:
 		_handle_death()
+		return
+
+	# 1. HORIZONTAL DIRECTION:
+	var h_dir: float = 0.0
+	if absf(velocity.x) > 5.0:
+		# Knock opposite to his current movement direction
+		h_dir = -signf(velocity.x)
+	else:
+		# Standing still: knock away from the enemy
+		if source_pos != Vector2.INF and absf(source_pos.x - global_position.x) > 1.0:
+			h_dir = -1.0 if (source_pos.x > global_position.x) else 1.0
+		else:
+			h_dir = -1.0 if facing_right else 1.0
+
+	# 2. VERTICAL DIRECTION:
+	# Mostly launched upwards (-1.0), unless Kirby clearly hit them from below while rising
+	var v_dir: float = -1.0
+	if velocity.y < -15.0 and source_pos != Vector2.INF and global_position.y > (source_pos.y + 4.0):
+		v_dir = 1.0 # Spiked downwards!
+
+	# 3. EXACT 45-DEGREE ANGLE (|velocity.x| == |velocity.y|)
+	var knock_speed: float = knockback_horizontal # Uses your export (80.0)
+	velocity.x = h_dir * knock_speed
+	velocity.y = v_dir * knock_speed
+
+	# Lock movement briefly during recoil & start i-frames
+	is_hurt = true
+	hurt_timer = hurt_recoil_time
+	is_invulnerable = true
+	invulnerable_timer = invulnerability_duration
+	blink_timer = 0.0
 
 
 func _update_hurt_and_invulnerability(delta: float) -> void:
@@ -582,11 +640,42 @@ func _update_hurt_and_invulnerability(delta: float) -> void:
 
 
 func _handle_death() -> void:
+	is_dying = true
+	velocity = Vector2.ZERO
+
+	# 1. Freeze the whole world instantly (enemies, animations, projectiles all stop)
+	set_world_paused(true)
+
+	# Kirby freezes in his hurt pose
+	if anim_sprite:
+		anim_sprite.pause()
+
+	# 2. Disable collisions so Kirby can drop through the floor
+	standing_collider.set_deferred("disabled", true)
+	crouch_collider.set_deferred("disabled", true)
+	if float_collider:
+		float_collider.set_deferred("disabled", true)
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", false)
+
+	# 3. Freeze and Death hop: Pop up, then drop down off-screen while spinning
+	await get_tree().create_timer(0.75, true).timeout
+	anim_sprite.play("death")
+	var death_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var hop_pos := global_position + Vector2(0.0, -death_hop_height)
+	var fall_pos := global_position + Vector2(0.0, death_fall_distance)
+	death_tween.tween_property(self, "global_position", hop_pos, death_hop_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	death_tween.tween_property(self, "global_position", fall_pos, death_fall_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await death_tween.finished
+
+	# 4. Fade to white
+	await ScreenFader.fade(true)
+
+	# 5. DURING THE FADE: Decrement and update the HUD lives counter
 	lives = max(lives - 1, 0)
 	lives_changed.emit(lives)
-	await gb_palette_fade(true)
 
-	# 1. Despawn all active enemies currently on screen
+	# 6. Clean up room while screen is white
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if is_instance_valid(enemy) and enemy != self:
 			enemy.queue_free()
@@ -594,14 +683,19 @@ func _handle_death() -> void:
 		if is_instance_valid(enemy) and enemy != self and not (enemy is TileMapLayer):
 			enemy.queue_free()
 
-	# 2. Despawn any lingering projectiles and effects
 	get_tree().call_group("projectiles", "queue_free")
 	get_tree().call_group("effects", "queue_free")
 
-	# 3. Reset spawners and all resettable level objects
+	# 7. Unpause and reset level state
+	set_world_paused(false)
+	process_mode = Node.PROCESS_MODE_INHERIT
 	get_tree().call_group("resettable", "reset_state")
 
-	await gb_palette_fade(false)
+	await get_tree().create_timer(0.08, true).timeout
+
+	# 8. Fade back in
+	await ScreenFader.fade(false)
+	is_dying = false
 
 
 func add_score(points: int) -> void:
@@ -772,7 +866,7 @@ func _enter_door(door: Door) -> void:
 		anim_sprite.play("enter_door")
 		await anim_sprite.animation_finished
 
-	await gb_palette_fade(true)
+	await ScreenFader.fade(true)
 
 	for node in get_tree().get_nodes_in_group("resettable"):
 		if node is Projectile:
@@ -785,51 +879,10 @@ func _enter_door(door: Door) -> void:
 	anim_sprite.play("idle")
 
 	await get_tree().create_timer(0.06).timeout
-	await gb_palette_fade(false)
+	await ScreenFader.fade(false)
 
 	waiting_for_up_release = true
 	is_entering_door = false
-
-
-func gb_palette_fade(to_white: bool) -> void:
-	if not _fade_layer or not is_instance_valid(_fade_layer):
-		_fade_layer = CanvasLayer.new()
-		_fade_layer.layer = 100
-		var rect := ColorRect.new()
-		rect.position = Vector2.ZERO
-		rect.size = Vector2(160.0, 128.0) # Game Boy screen minus 16px HUD
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-		var shader := Shader.new()
-		shader.code = """
-shader_type canvas_item;
-uniform sampler2D screen_tex : hint_screen_texture, filter_nearest;
-uniform int fade_step : hint_range(0, 3) = 0;
-
-void fragment() {
-	vec4 col = texture(screen_tex, SCREEN_UV);
-	float lum = dot(col.rgb, vec3(0.299, 0.587, 0.114));
-	int shade = int(round(lum * 3.0));
-	shade = min(shade + fade_step, 3);
-	float out_lum = float(shade) / 3.0;
-	COLOR = vec4(vec3(out_lum), 1.0);
-}
-"""
-		_fade_mat = ShaderMaterial.new()
-		_fade_mat.shader = shader
-		rect.material = _fade_mat
-		_fade_layer.add_child(rect)
-		get_tree().root.add_child(_fade_layer)
-
-	_fade_layer.visible = true
-	var steps: Array = [1, 2, 3] if to_white else [2, 1, 0]
-	for s in steps:
-		_fade_mat.set_shader_parameter("fade_step", s)
-		await get_tree().create_timer(0.055).timeout
-
-	if not to_white:
-		_fade_layer.visible = false
-
 
 # -----------------------------------------------------------------------------
 # CAMERA BOUNDARIES
@@ -900,12 +953,6 @@ func _update_animations(delta: float) -> void:
 		anim_sprite.position.x = 0.0
 	anim_sprite.position.y = 0.0
 
-	# Hurt animation takes top priority
-	if is_hurt:
-		if anim_sprite.sprite_frames.has_animation("hurt"):
-			anim_sprite.play("hurt")
-		return
-
 	if has_bounced:
 		_reset_blink_timer()
 		anim_sprite.play("fall")
@@ -971,3 +1018,21 @@ func _update_animations(delta: float) -> void:
 		if blink_wait_time <= 0.0:
 			anim_sprite.play("blink")
 			_reset_blink_timer()
+
+## Unified world pause controller (shared by the Pause button and the Death sequence)
+func set_world_paused(should_pause: bool) -> void:
+	get_tree().paused = should_pause
+	if should_pause:
+		if anim_sprite:
+			anim_sprite.pause()
+	else:
+		if anim_sprite and not is_dying:
+			anim_sprite.play()
+
+
+## Player pause toggle (P)
+func toggle_pause() -> void:
+	if is_dying:
+		return
+	is_game_paused = not is_game_paused
+	set_world_paused(is_game_paused)
