@@ -34,7 +34,8 @@ func _setup_rect() -> void:
 		if not color_rect:
 			color_rect = ColorRect.new()
 			color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			color_rect.size = Vector2(160.0, 128.0) # Playable Game Boy screen area
+			# Automatically expands to fill 100% of any viewport size or orientation
+			color_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 			add_child(color_rect)
 
 	var shader := Shader.new()
