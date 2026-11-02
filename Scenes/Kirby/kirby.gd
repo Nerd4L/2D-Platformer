@@ -77,8 +77,8 @@ signal score_changed(current_score: int)
 @export var star_particle_texture: Texture2D
 
 @export_category("Death Animation")
-@export var death_hop_height: float = 26.0
-@export var death_hop_duration: float = 0.4
+@export var death_hop_height: float = 24.0
+@export var death_hop_duration: float = 0.35
 #@export var death_fall_distance: float = 110.0
 #@export var death_fall_duration: float = 0.7
 
