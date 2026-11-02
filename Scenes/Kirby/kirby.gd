@@ -320,8 +320,8 @@ func _physics_process(delta: float) -> void:
 	# 1. Physics & Movement Sub-systems
 	_handle_gravity(delta, busy_action)
 	_handle_inhale_and_mouth_actions(busy_action)
-	_handle_jump_and_float_actions(busy_action, overlapping_door != null)
-	_update_colliders(busy_action)
+	_handle_jump_and_float_actions(overlapping_door != null)
+	_update_colliders()
 	_handle_horizontal_movement(delta, busy_action)
 	_handle_one_way_platforms(delta)
 
@@ -365,9 +365,9 @@ func _handle_gravity(delta: float, busy_action: bool) -> void:
 		coyote_time_counter -= delta
 
 
-func _handle_jump_and_float_actions(busy_action: bool, near_door: bool) -> void:
+func _handle_jump_and_float_actions(near_door: bool) -> void:
 	is_flapping = false
-	var busy_inhaling: bool = is_inhaling or is_inhale_recovering or busy_action
+	var busy_inhaling: bool = is_inhaling or is_inhale_recovering or is_swallowing
 
 	if not is_floating and not is_exhaling and not has_bounced:
 		if Input.is_action_pressed("float_up") and not is_mouthful and not busy_inhaling and not near_door:
@@ -467,14 +467,12 @@ func _clear_inhale_particles() -> void:
 func _swallow_mouthful() -> void:
 	is_mouthful = false
 	is_swallowing = true
-	swallow_spit_timer = 0.18
 	anim_sprite.play("mouthful_gulp")
 
 
 func _spit_star() -> void:
 	is_mouthful = false
 	is_spitting = true
-	swallow_spit_timer = 0.16
 	anim_sprite.play("mouthful_spit")
 	_spawn_projectile(Projectile.Type.STAR)
 
@@ -812,7 +810,7 @@ func add_score(points: int) -> void:
 # -----------------------------------------------------------------------------
 func _handle_horizontal_movement(delta: float, busy_action: bool) -> void:
 	var move_dir: float = Input.get_axis("move_left", "move_right")
-	var lock_input: bool = is_crouching or is_inhaling or is_inhale_recovering or busy_action
+	var lock_input: bool = is_crouching or is_inhaling or is_inhale_recovering or is_swallowing
 	var effective_dir: float = 0.0 if lock_input else move_dir
 	var current_max_speed: float = float_air_speed if is_floating else move_speed
 	var target_speed: float = effective_dir * current_max_speed
@@ -846,10 +844,10 @@ func _handle_one_way_platforms(delta: float) -> void:
 	set_collision_mask_value(2, not ignore_platforms)
 
 
-func _update_colliders(busy_action: bool) -> void:
+func _update_colliders() -> void:
 	var is_big_hitbox: bool = is_floating or is_mouthful
 	var crouch_pressed: bool = Input.is_action_pressed("crouch")
-	var busy_inhaling: bool = is_inhaling or is_inhale_recovering or busy_action
+	var busy_inhaling: bool = is_inhaling or is_inhale_recovering or is_swallowing
 
 	is_crouching = crouch_pressed and is_on_floor() and not is_big_hitbox and not busy_inhaling
 
@@ -909,12 +907,6 @@ func _spawn_impact_star(spawn_pos: Vector2 = Vector2.INF) -> void:
 
 func _update_action_timers(delta: float) -> void:
 	_update_hurt_and_invulnerability(delta)
-
-	if swallow_spit_timer > 0.0:
-		swallow_spit_timer -= delta
-		if swallow_spit_timer <= 0.0:
-			is_swallowing = false
-			is_spitting = false
 
 	if platform_drop_timer > 0.0:
 		platform_drop_timer -= delta
@@ -1058,8 +1050,15 @@ func _update_animations(delta: float) -> void:
 		anim_sprite.play("fall")
 		return
 
-	if is_swallowing or is_spitting:
-		return
+	if is_swallowing:
+		if anim_sprite.animation == "mouthful_gulp" and anim_sprite.is_playing():
+			return
+		is_swallowing = false
+
+	if is_spitting:
+		if anim_sprite.animation == "mouthful_spit" and anim_sprite.is_playing():
+			return
+		is_spitting = false
 
 	if is_exhaling:
 		if anim_sprite.animation == "float_recovery" and anim_sprite.is_playing():
