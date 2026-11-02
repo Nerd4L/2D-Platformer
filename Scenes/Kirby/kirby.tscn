@@ -21,6 +21,22 @@ region = Rect2(24, 0, 24, 24)
 atlas = ExtResource("4_85ufe")
 region = Rect2(72, 0, 24, 24)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_7n2k2"]
+atlas = ExtResource("4_85ufe")
+region = Rect2(24, 144, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kpv5q"]
+atlas = ExtResource("4_85ufe")
+region = Rect2(48, 144, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kaxde"]
+atlas = ExtResource("4_85ufe")
+region = Rect2(72, 144, 24, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_85ufe"]
+atlas = ExtResource("4_85ufe")
+region = Rect2(96, 144, 24, 24)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_7ioku"]
 atlas = ExtResource("4_85ufe")
 region = Rect2(0, 120, 24, 24)
@@ -150,6 +166,23 @@ animations = [{
 "loop": 1,
 "name": &"crouch",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7n2k2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kpv5q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kaxde")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_85ufe")
+}],
+"loop": 1,
+"name": &"death",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -354,7 +387,9 @@ star_particle_texture = SubResource("AtlasTexture_1e83d")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1792995418]
 sprite_frames = SubResource("SpriteFrames_6gnmv")
-animation = &"idle"
+animation = &"death"
+frame = 1
+frame_progress = 0.29653332
 offset = Vector2(0, -4)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1188633967]
