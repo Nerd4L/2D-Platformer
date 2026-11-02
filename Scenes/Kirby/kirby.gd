@@ -170,7 +170,7 @@ func _emit_initial_stats() -> void:
 	score_changed.emit(score)
 
 
-func _unhandled_key_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
 			full_reset()
@@ -186,6 +186,7 @@ func reset_state() -> void:
 	is_game_paused = false
 	is_dying = false
 	set_world_paused(false)
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	
 	global_position = start_pos
 	if starting_camera_room:
@@ -688,7 +689,6 @@ func _handle_death() -> void:
 
 	# 7. Unpause and reset level state
 	set_world_paused(false)
-	process_mode = Node.PROCESS_MODE_INHERIT
 	get_tree().call_group("resettable", "reset_state")
 
 	await get_tree().create_timer(0.08, true).timeout
