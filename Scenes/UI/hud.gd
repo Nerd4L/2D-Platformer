@@ -21,6 +21,11 @@ func _ready() -> void:
 	var player_node: Node = get_tree().get_first_node_in_group("player")
 	if player_node:
 		connect_to_kirby(player_node)
+	
+	# Make the AtlasTexture unique to this node so changing its region 
+	# doesn't affect other atlas textures sharing the same sprite sheet
+	if lives_number and lives_number.texture is AtlasTexture:
+		lives_number.texture = lives_number.texture.duplicate()
 
 
 func connect_to_kirby(kirby: Node) -> void:
@@ -51,6 +56,19 @@ func set_health(current: int, _max_val: int) -> void:
 				pip_nodes[i].visible = false
 
 
-func set_lives(_lives_count: int) -> void:
-	# Ready for when we hook up the lives number texture
-	pass
+func set_lives(lives_count: int) -> void:
+	set_digit(lives_number, lives_count)
+
+func set_digit(tex_rect: TextureRect, value: int) -> void:
+	if not tex_rect or not (tex_rect.texture is AtlasTexture):
+		return
+
+	var atlas_tex := tex_rect.texture as AtlasTexture
+	var digit_w: float = atlas_tex.region.size.x
+	var digit_h: float = atlas_tex.region.size.y
+
+	var digit: int = clampi(value, 0, 9)
+	var col: int = digit % 5
+	var row: int = floori(float(digit) / 5.0) # Floating point division eliminates the warning
+
+	atlas_tex.region.position = Vector2(col * digit_w, row * digit_h)
