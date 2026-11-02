@@ -1,9 +1,0 @@
-[gd_scene format=3 uid="uid://b0fd7f6yavjfr"]
-
-[ext_resource type="SpriteFrames" uid="uid://d0vaf8a3euya4" path="res://Animations/star_burst_frames.tres" id="1_rpxr8"]
-[ext_resource type="Script" uid="uid://g6jjd1cidlfv" path="res://Scenes/Effects/hit_effect.gd" id="2_vm7lc"]
-
-[node name="HitEffect" type="AnimatedSprite2D" unique_id=1130715095]
-sprite_frames = ExtResource("1_rpxr8")
-animation = &"star_burst1"
-script = ExtResource("2_vm7lc")

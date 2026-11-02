@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://che587ws66q7u"]
 
 [ext_resource type="Script" uid="uid://b1m8xg4ik2vek" path="res://Scenes/Kirby/projectile.gd" id="1_tl4hk"]
-[ext_resource type="SpriteFrames" uid="uid://d0vaf8a3euya4" path="res://Animations/effects.tres" id="2_d4467"]
 [ext_resource type="Texture2D" uid="uid://dhgvekedqrlw5" path="res://Images/Effects/effects.png" id="3_e1077"]
+[ext_resource type="SpriteFrames" uid="uid://c6a5yc3xrmib3" path="res://Animations/effects.tres" id="3_nx1gk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
 size = Vector2(12, 4)
@@ -13,14 +13,13 @@ region = Rect2(64, 32, 16, 16)
 
 [node name="Projectile" type="Area2D" unique_id=1808561325]
 script = ExtResource("1_tl4hk")
-fx_frames = ExtResource("2_d4467")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1979088411]
 shape = SubResource("RectangleShape2D_tjrnq")
 
 [node name="StarSprite" type="AnimatedSprite2D" parent="." unique_id=958935329]
-sprite_frames = ExtResource("2_d4467")
-animation = &"rotate"
+sprite_frames = ExtResource("3_nx1gk")
+animation = &"rotating_star"
 
 [node name="PuffSprite" type="Sprite2D" parent="." unique_id=746295770]
 texture = SubResource("AtlasTexture_tjrnq")

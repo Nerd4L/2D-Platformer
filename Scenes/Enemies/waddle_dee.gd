@@ -1,7 +1,8 @@
 extends CharacterBody2D
 class_name WaddleDee
 
-@export_category("Waddle Dee Movement (GB Tuned)")
+@export_category("Waddle Dee Movement")
+@export var max_health: int = 1
 @export var move_speed: float = 32.0
 @export var jump_velocity: float = -135.0 # Clears a 1-tile (16px) step cleanly!
 @export var gravity: float = 420.0
@@ -14,6 +15,8 @@ class_name WaddleDee
 @export var anim_sprite: AnimatedSprite2D
 @export var collider: CollisionShape2D
 
+var current_health: int = 1
+
 enum State { PATROL, BEING_INHALED }
 var state: State = State.PATROL
 
@@ -23,7 +26,9 @@ var inhale_start_dist: float = 40.0
 
 
 func _ready() -> void:
+	add_to_group("enemies")
 	add_to_group("inhaleable")
+	current_health = max_health
 	if not anim_sprite:
 		anim_sprite = get_node_or_null("AnimatedSprite2D")
 	if not collider:
@@ -42,6 +47,21 @@ func _physics_process(delta: float) -> void:
 		State.BEING_INHALED:
 			_process_being_inhaled(delta)
 
+
+func take_damage(amount: int = 1) -> void:
+	current_health -= amount
+	if current_health <= 0:
+		die()
+
+func die() -> void:
+	# Spawns a random starburst from star_burst_frames.tres
+	HitFX.spawn(self, "star_burst", global_position)
+	
+	var kirby := get_tree().get_first_node_in_group("player")
+	if kirby and kirby.has_method("add_score"):
+		kirby.add_score(100)
+		
+	queue_free()
 
 func _process_patrol(delta: float) -> void:
 	# 1. Gravity

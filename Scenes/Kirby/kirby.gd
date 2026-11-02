@@ -513,9 +513,27 @@ func _on_hurtbox_entered(collider: Node2D) -> void:
 		or enemy_node.is_in_group("inhaleable")
 		or collider.is_in_group("enemies")
 	)
+	
+	if not is_enemy:
+		return
 
-	if is_enemy:
+	if is_invulnerable:
+		# Kirby is invincible! Destroy the enemy he hit
+		_damage_enemy(enemy_node)
+	else:
 		take_damage(1, enemy_node.global_position)
+
+
+func _damage_enemy(enemy: Node2D) -> void:
+	if not is_instance_valid(enemy):
+		return
+	if enemy.has_method("take_damage"):
+		enemy.take_damage(1)
+	elif enemy.has_method("die"):
+		enemy.die()
+	else:
+		HitFX.spawn(self, "star_burst", enemy.global_position)
+		enemy.queue_free()
 
 
 func take_damage(amount: int, source_pos: Vector2) -> void:
@@ -525,31 +543,16 @@ func take_damage(amount: int, source_pos: Vector2) -> void:
 	current_health = max(current_health - amount, 0)
 	health_changed.emit(current_health, max_health)
 
-	# 1. State disruption: Hit while floating or holding mouthful
-	if is_floating:
-		is_floating = false
-		is_flapping = false
-		is_exhaling = false
-	if is_mouthful:
-		is_mouthful = false
-		_spawn_projectile(Projectile.Type.STAR)
-	if is_inhaling:
-		_clear_inhale_state()
-		is_inhaling = false
-
-	# 2. Knockback recoil
+	# 1. Knockback recoil
 	is_hurt = true
 	hurt_timer = hurt_recoil_time
 	var knock_dir: float = -1.0 if (source_pos.x > global_position.x) else 1.0
 	velocity.x = knock_dir * knockback_horizontal
 	velocity.y = knockback_vertical
 
-	# 3. Invincibility & blinking
+	# 2. Invincibility
 	is_invulnerable = true
 	invulnerable_timer = invulnerability_duration
-	blink_timer = 0.0
-
-	_spawn_impact_star()
 
 	if anim_sprite and anim_sprite.sprite_frames.has_animation("hurt"):
 		anim_sprite.play("hurt")
@@ -582,7 +585,22 @@ func _handle_death() -> void:
 	lives = max(lives - 1, 0)
 	lives_changed.emit(lives)
 	await gb_palette_fade(true)
-	reset_state()
+
+	# 1. Despawn all active enemies currently on screen
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if is_instance_valid(enemy) and enemy != self:
+			enemy.queue_free()
+	for enemy in get_tree().get_nodes_in_group("inhaleable"):
+		if is_instance_valid(enemy) and enemy != self and not (enemy is TileMapLayer):
+			enemy.queue_free()
+
+	# 2. Despawn any lingering projectiles and effects
+	get_tree().call_group("projectiles", "queue_free")
+	get_tree().call_group("effects", "queue_free")
+
+	# 3. Reset spawners and all resettable level objects
+	get_tree().call_group("resettable", "reset_state")
+
 	await gb_palette_fade(false)
 
 
@@ -678,6 +696,7 @@ func _spawn_impact_star(spawn_pos: Vector2 = Vector2.INF) -> void:
 		return
 	var pos: Vector2 = (global_position + Vector2(0.0, 4.0)) if spawn_pos == Vector2.INF else spawn_pos
 	var star := Sprite2D.new()
+	star.add_to_group("effects")
 	star.texture = star_particle_texture
 	star.z_index = 10
 	star.global_position = pos
@@ -691,6 +710,15 @@ func _spawn_impact_star(spawn_pos: Vector2 = Vector2.INF) -> void:
 
 
 func _update_action_timers(delta: float) -> void:
+	_update_hurt_and_invulnerability(delta)
+	# While invincible, destroy any enemies Kirby touches
+	if is_invulnerable and hurtbox:
+		for body in hurtbox.get_overlapping_bodies():
+			if not inhaling_enemies.has(body):
+				var is_enemy: bool = body.get_collision_layer_value(4) or body.is_in_group("enemies") or body.is_in_group("inhaleable")
+				if is_enemy:
+					_damage_enemy(body)
+
 	if swallow_spit_timer > 0.0:
 		swallow_spit_timer -= delta
 		if swallow_spit_timer <= 0.0:

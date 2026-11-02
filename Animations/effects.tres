@@ -2,18 +2,6 @@
 
 [ext_resource type="Texture2D" uid="uid://dhgvekedqrlw5" path="res://Images/Effects/effects.png" id="1_b5u6q"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_vwjnf"]
-atlas = ExtResource("1_b5u6q")
-region = Rect2(0, 48, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_hoyt4"]
-atlas = ExtResource("1_b5u6q")
-region = Rect2(16, 48, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1hqbl"]
-atlas = ExtResource("1_b5u6q")
-region = Rect2(32, 48, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_gtr1j"]
 atlas = ExtResource("1_b5u6q")
 region = Rect2(0, 0, 16, 16)
@@ -30,22 +18,20 @@ region = Rect2(32, 0, 16, 16)
 atlas = ExtResource("1_b5u6q")
 region = Rect2(48, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_vwjnf"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hoyt4"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(16, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1hqbl"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(32, 48, 16, 16)
+
 [resource]
 animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_vwjnf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hoyt4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1hqbl")
-}],
-"loop": 0,
-"name": &"boom",
-"speed": 10.0
-}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_gtr1j")
@@ -60,6 +46,20 @@ animations = [{
 "texture": SubResource("AtlasTexture_g32ej")
 }],
 "loop": 1,
-"name": &"rotate",
+"name": &"rotating_star",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vwjnf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hoyt4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1hqbl")
+}],
+"loop": 0,
+"name": &"small_explosion",
 "speed": 10.0
 }]
