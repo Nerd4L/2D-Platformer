@@ -10,6 +10,22 @@ region = Rect2(32, 0, 16, 16)
 atlas = ExtResource("1_3k2xn")
 region = Rect2(32, 16, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_pm6kb"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(16, 32, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7fmea"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upxih"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1rlt3"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(16, 0, 16, 16)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_nwon6"]
 atlas = ExtResource("1_3k2xn")
 region = Rect2(0, 0, 16, 16)
@@ -37,6 +53,36 @@ animations = [{
 }],
 "loop": 1,
 "name": &"bronto_fly",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pm6kb")
+}],
+"loop": 1,
+"name": &"twizzy_fall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7fmea")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upxih")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pm6kb")
+}],
+"loop": 1,
+"name": &"twizzy_flap",
+"speed": 7.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1rlt3")
+}],
+"loop": 1,
+"name": &"twizzy_idle",
 "speed": 5.0
 }, {
 "frames": [{

@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bxit64rthbvrd"]
+
+[ext_resource type="Script" uid="uid://pky0ucvr8jp3" path="res://Scenes/Enemies/twizzy.gd" id="1_tggqw"]
+[ext_resource type="SpriteFrames" uid="uid://dukwkum2y1kse" path="res://Animations/enemies.tres" id="2_ob5gk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(8, 10)
+
+[node name="Twizzy" type="CharacterBody2D" unique_id=1553259950]
+z_index = 4
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_tggqw")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=786195894]
+sprite_frames = ExtResource("2_ob5gk")
+animation = &"twizzy_flap"
+frame_progress = 0.050882656
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1193396842]
+position = Vector2(0, 3)
+shape = SubResource("RectangleShape2D_tjrnq")

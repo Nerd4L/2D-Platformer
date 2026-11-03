@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://bkr4gnp51umom" path="res://Scenes/UI/hud.tscn" id="6_qhhv5"]
 [ext_resource type="Script" uid="uid://b0bblgab7vwwq" path="res://Scenes/Level Objects/enemy_spawner.gd" id="7_joajk"]
 [ext_resource type="PackedScene" uid="uid://cctarqt0f4g3q" path="res://Scenes/Enemies/bronto_burt.tscn" id="8_qhhv5"]
+[ext_resource type="PackedScene" uid="uid://bxit64rthbvrd" path="res://Scenes/Enemies/twizzy.tscn" id="9_qhhv5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_53r2y"]
 shader = ExtResource("2_o5f80")
@@ -196,6 +197,38 @@ enemy_scene = ExtResource("8_qhhv5")
 wave_frequency = 5.5
 wave_amplitude = 50.0
 snap_to_floor = false
+
+[node name="Twizzys" type="Node2D" parent="Spawners" unique_id=1415832617]
+
+[node name="EnemySpawner1" type="Marker2D" parent="Spawners/Twizzys" unique_id=906878881]
+position = Vector2(279, -40)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("9_qhhv5")
+snap_to_floor = false
+
+[node name="EnemySpawner2" type="Marker2D" parent="Spawners/Twizzys" unique_id=1896223659]
+position = Vector2(328, -8)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("9_qhhv5")
+behavior = 1
+
+[node name="EnemySpawner3" type="Marker2D" parent="Spawners/Twizzys" unique_id=605459666]
+position = Vector2(856, -8)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("9_qhhv5")
+behavior = 1
+
+[node name="EnemySpawner4" type="Marker2D" parent="Spawners/Twizzys" unique_id=26631291]
+position = Vector2(1063, -26)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("9_qhhv5")
+snap_to_floor = false
+
+[node name="EnemySpawner5" type="Marker2D" parent="Spawners/Twizzys" unique_id=1678722094]
+position = Vector2(1128, -8)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("9_qhhv5")
+behavior = 1
 
 [node name="Doors" type="Node2D" parent="." unique_id=1787275505]
 

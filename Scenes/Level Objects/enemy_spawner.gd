@@ -43,6 +43,9 @@ func _validate_property(property: Dictionary) -> void:
 			property.hint_string = "WAVE,DIVE,BOUNCE,VERTICAL"
 			if property.name in ["flight_speed_x", "flight_speed_y", "wave_frequency", "wave_amplitude"]:
 				property.usage &= ~PROPERTY_USAGE_EDITOR
+		elif "twizzy" in path:
+			property.hint = PROPERTY_HINT_ENUM
+			property.hint_string = "FLY,HOP"
 		else:
 			# Hide behavior dropdown completely if no enemy or unknown enemy is selected
 			property.usage &= ~PROPERTY_USAGE_EDITOR
