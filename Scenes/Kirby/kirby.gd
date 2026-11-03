@@ -11,6 +11,11 @@ signal score_changed(current_score: int)
 # -----------------------------------------------------------------------------
 # EXPORT CATEGORIES
 # -----------------------------------------------------------------------------
+@export_category("Debug Spawn")
+@export var use_debug_spawn: bool = false
+@export var debug_spawn_marker: Marker2D
+@export var debug_camera_room: ReferenceRect
+
 @export_category("Input buffering")
 # 0.12 == ~7 frames of input memory
 @export var jump_buffer_time: float = 0.12   
@@ -138,7 +143,12 @@ var active_particles: Array[Sprite2D] = []
 # -----------------------------------------------------------------------------
 func _ready() -> void:
 	# Make sure the game can listen for the unpause key when paused
-	process_mode = Node.PROCESS_MODE_ALWAYS 
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	if use_debug_spawn and debug_spawn_marker:
+		global_position = debug_spawn_marker.global_position
+		if debug_camera_room:
+			starting_camera_room = debug_camera_room
 	
 	# Automatic fallback if inspector slots were unlinked
 	if not inhale_pivot:
@@ -989,7 +999,7 @@ func _enter_door(door: Door) -> void:
 # -----------------------------------------------------------------------------
 # WARPSTAR RIDING + ANIMATION
 # -----------------------------------------------------------------------------
-func mount_warp_star(star: Node2D) -> void:
+func mount_warp_star(star: Node2D, faces_right: bool = true) -> void:
 	is_riding_warp_star = true
 	velocity = Vector2.ZERO
 
@@ -999,6 +1009,8 @@ func mount_warp_star(star: Node2D) -> void:
 
 	# Snap Kirby directly onto the star
 	global_position = star.global_position
+	if anim_sprite:
+		anim_sprite.flip_h = not faces_right
 
 	# Disable colliders while riding
 	standing_collider.set_deferred("disabled", true)
@@ -1014,8 +1026,7 @@ func dismount_warp_star() -> void:
 
 	# Re-enable colliders
 	standing_collider.set_deferred("disabled", false)
-	if hurtbox:
-		hurtbox.set_deferred("monitoring", true)
+	hurtbox.set_deferred("monitoring", true)
 
 	anim_sprite.play("idle")
 
@@ -1065,6 +1076,15 @@ func _clamp_to_level_bounds() -> void:
 		if velocity.y < 0.0:
 			velocity.y = 0.0
 
+
+## Smoothly unlocks the camera towards the right without jumping or snapping
+func expand_camera_room(room: ReferenceRect) -> void:
+	if not room or not cam:
+		return
+	var rect: Rect2 = room.get_global_rect()
+	cam.limit_right = max(cam.limit_right, int(rect.end.x))
+	cam.limit_top = min(cam.limit_top, int(rect.position.y))
+	cam.limit_bottom = max(cam.limit_bottom, int(rect.end.y + hud_height))
 
 # -----------------------------------------------------------------------------
 # VISUALS & ANIMATIONS
