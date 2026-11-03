@@ -180,8 +180,6 @@ func _ready() -> void:
 
 	if starting_camera_room:
 		set_camera_room(starting_camera_room)
-	elif terrain_layer:
-		_setup_terrain_camera_limits()
 
 	# Broadcast initial stats to HUD
 	call_deferred("_emit_initial_stats")
@@ -1043,19 +1041,6 @@ func set_camera_room(room: ReferenceRect) -> void:
 	cam.limit_right = int(rect.end.x)
 	cam.limit_bottom = int(rect.end.y + hud_height)
 	cam.reset_smoothing()
-
-
-func _setup_terrain_camera_limits() -> void:
-	cam.limit_enabled = true
-	var used_rect: Rect2i = terrain_layer.get_used_rect()
-	var tile_size: Vector2i = terrain_layer.tile_set.tile_size
-	var top_left: Vector2 = terrain_layer.to_global(Vector2(used_rect.position * tile_size))
-	var bottom_right: Vector2 = terrain_layer.to_global(Vector2(used_rect.end * tile_size))
-	cam.limit_left = int(top_left.x)
-	cam.limit_top = int(top_left.y)
-	cam.limit_right = int(bottom_right.x)
-	cam.limit_bottom = int(bottom_right.y + hud_height)
-
 
 func _clamp_to_level_bounds() -> void:
 	if not cam or not cam.limit_enabled:

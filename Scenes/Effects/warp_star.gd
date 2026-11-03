@@ -8,7 +8,7 @@ extends Area2D
 
 @export_category("Flight Tuning")
 @export var flight_faces_right: bool = true
-@export var flight_duration: float = 2.2      # Total time to swoop, loop, and rocket across
+@export var flight_duration: float = 5
 
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -52,68 +52,78 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 	await get_tree().create_timer(0.12, true).timeout
 
 	# -------------------------------------------------------------------------
-	# 5. INDEPENDENT CAMERA DOLLY PAN
+	# 5. CAMERA SETUP
 	# -------------------------------------------------------------------------
 	var cam: Camera2D = kirby.cam
-	if cam:
-		# Detach camera tracking from Kirby's crazy loop
-		cam.top_level = true
-		cam.global_position = kirby.global_position
-		
-		if target_camera_room:
-			var rect: Rect2 = target_camera_room.get_global_rect()
-			cam.limit_right = max(cam.limit_right, int(rect.end.x))
-			cam.limit_top = min(cam.limit_top, int(rect.position.y))
-			cam.limit_bottom = max(cam.limit_bottom, int(rect.end.y + kirby.hud_height))
-			
-			# Smoothly pan camera to the right towards the forest
-			var target_cam_x: float = rect.position.x + (get_viewport_rect().size.x * 0.5)
-			var cam_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-			cam_tween.tween_property(cam, "global_position:x", target_cam_x, flight_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var start_cam_pos: Vector2 = cam.get_screen_center_position() if cam else start_pos
+	var target_cam_x: float = start_cam_pos.x + 300.0
+
+	if target_camera_room and cam:
+		var rect: Rect2 = target_camera_room.get_global_rect()
+		# Expand right limit so the camera is allowed to scroll into the forest
+		cam.limit_right = max(cam.limit_right, int(rect.end.x))
+		# Calculate the final camera X position centered on the forest marker
+		if target_marker:
+			target_cam_x = clampf(target_marker.global_position.x, rect.position.x + 80.0, rect.end.x - 80.0)
+		else:
+			target_cam_x = rect.position.x + 80.0
 
 	# -------------------------------------------------------------------------
-	# 6. BUTTERY SMOOTH ROLLERCOASTER LOOP (Curve2D Spline!)
+	# 6. BUTTERY SMOOTH LOOP-DE-LOOP SPLINE
 	# -------------------------------------------------------------------------
 	var forest_landing_pos: Vector2 = target_marker.global_position if target_marker else (start_pos + Vector2(380.0, 0.0))
-	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-20.0, -95.0)
+	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-10.0, -85.0)
 
 	var curve := Curve2D.new()
-	# Point 0: Levitate apex (cliff)
-	curve.add_point(levitate_pos, Vector2.ZERO, Vector2(30.0, 10.0))
-	# Point 1: Plunge down to ground level (Panel 1)
-	curve.add_point(start_pos + Vector2(65.0, 48.0), Vector2(-25.0, -20.0), Vector2(25.0, 10.0))
-	# Point 2: Swoop forward along ground (Panel 2)
-	curve.add_point(start_pos + Vector2(115.0, 42.0), Vector2(-15.0, 5.0), Vector2(-5.0, -25.0))
-	# Point 3: Loop peak (curves up and backwards!)
-	curve.add_point(start_pos + Vector2(92.0, 14.0), Vector2(15.0, 5.0), Vector2(-15.0, -2.0))
-	# Point 4: Loop exit (curves back forward)
-	curve.add_point(start_pos + Vector2(78.0, 32.0), Vector2(-5.0, -15.0), Vector2(20.0, 15.0))
+	# Point 0: Levitate apex on cliff
+	curve.add_point(levitate_pos, Vector2.ZERO, Vector2(25.0, 10.0))
+	
+	# Point 1: Plunge down off cliff towards ground (Panel 1)
+	curve.add_point(start_pos + Vector2(65.0, 48.0), Vector2(-25.0, -20.0), Vector2(25.0, 8.0))
+	
+	# Point 2: Forward curve along ground (Panel 2)
+	curve.add_point(start_pos + Vector2(110.0, 42.0), Vector2(-15.0, 5.0), Vector2(-5.0, -25.0))
+	
+	# Point 3: Loop-de-loop apex (curves UP and BACKWARDS!)
+	curve.add_point(start_pos + Vector2(88.0, 14.0), Vector2(15.0, 5.0), Vector2(-15.0, -2.0))
+	
+	# Point 4: Loop exit (curves back down and forward)
+	curve.add_point(start_pos + Vector2(74.0, 32.0), Vector2(-5.0, -15.0), Vector2(20.0, 15.0))
+	
 	# Point 5: Climbing forward into the sky (Panel 3)
-	curve.add_point(start_pos + Vector2(145.0, -5.0), Vector2(-25.0, 20.0), Vector2(40.0, -30.0))
-	# Point 6: Rocketing high over the forest
+	curve.add_point(start_pos + Vector2(140.0, -5.0), Vector2(-25.0, 20.0), Vector2(40.0, -30.0))
+	
+	# Point 6: Rocketing high over the forest sky
 	curve.add_point(forest_sky_pos, Vector2(-60.0, 50.0), Vector2.ZERO)
 
 	var curve_len: float = curve.get_baked_length()
 
-	# Start trail of small_stars
+	# Start trail of small_stars following Kirby
 	_start_flight_trail(kirby, flight_duration)
 
-	# Sample along the continuous curve
+	# -------------------------------------------------------------------------
+	# COMBINED FLIGHT & CAMERA PAN
+	# Kirby moves along the loop; the camera smoothly dollies to the right!
+	# -------------------------------------------------------------------------
 	var flight_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	flight_tween.tween_method(func(t: float):
 		if is_instance_valid(kirby):
+			# 1. Kirby swoops and loops along the curve
 			kirby.global_position = curve.sample_baked(t * curve_len)
+
+			# 2. Camera steadily glides to the right towards the forest (Y is locked!)
+			if cam:
+				var current_pan_x: float = lerpf(start_cam_pos.x, target_cam_x, t)
+				cam.global_position = Vector2(current_pan_x, start_cam_pos.y)
 	, 0.0, 1.0, flight_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	await flight_tween.finished
 
-	# -------------------------------------------------------------------------
-	# 7. CRASH INTO THE FOREST
-	# -------------------------------------------------------------------------
-	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos, 1.8)
+	# 7. CRASH INTO THE FOREST (Slow 2.0s drop as small_star)
+	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos, 2.0)
 
-	# 8. FADE OUT CUTSCENE COMPLETE
-	await get_tree().create_timer(0.4, true).timeout
+	# 8. FADE OUT CUTSCENE COMPLETE (Kirby stays hidden inside the crash!)
+	await get_tree().create_timer(0.35, true).timeout
 	await ScreenFader.fade(true)
 
 	if target_scene:
@@ -133,7 +143,7 @@ func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2
 	drop_star.global_position = sky_start
 	get_parent().add_child(drop_star)
 
-	# Drop slowly from the sky
+	# Slow graceful drop from the sky (2.0s)
 	var drop_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	drop_tween.tween_property(drop_star, "global_position", landing_pos, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await drop_tween.finished
