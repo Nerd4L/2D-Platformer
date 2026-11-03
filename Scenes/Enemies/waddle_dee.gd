@@ -14,6 +14,7 @@ enum Behavior {
 		if is_node_ready():
 			apply_behavior_settings()
 
+@export var patrol_distance: float = 0.0 # 0 = infinite, >0 = turn after X pixels
 @export var start_facing_left: bool = true
 @export var turns_at_ledges: bool = false
 
@@ -27,21 +28,24 @@ enum Behavior {
 @export var max_fall_speed: float = 135.0
 
 var can_jump_obstacles: bool = true
+var distance_traveled: float = 0.0
 
 
 func _enemy_ready() -> void:
 	move_dir = -1.0 if start_facing_left else 1.0
+	distance_traveled = 0.0
 	update_sprite_direction()
 	apply_behavior_settings()
 
 
-func set_behavior(new_behavior: int) -> void:
+func set_behavior(new_behavior: int, new_patrol_distance: float = 0.0) -> void:
 	behavior = new_behavior as Behavior
+	patrol_distance = new_patrol_distance
+	distance_traveled = 0.0
 	apply_behavior_settings()
 
 
 func apply_behavior_settings() -> void:
-	# Ensure anim_sprite is found even if called early
 	if not anim_sprite:
 		anim_sprite = get_node_or_null("AnimatedSprite2D")
 
@@ -55,13 +59,12 @@ func apply_behavior_settings() -> void:
 
 		Behavior.SLIDE:
 			move_speed = slide_speed
-			can_jump_obstacles = false # Classic GB sliding Dee glides across terrain
+			can_jump_obstacles = false
 			if anim_sprite and anim_sprite.sprite_frames:
 				if anim_sprite.sprite_frames.has_animation("slide"):
 					anim_sprite.speed_scale = 1.0
 					anim_sprite.play("slide")
 				elif anim_sprite.sprite_frames.has_animation("walk"):
-					# Fallback: rapid walk if no dedicated slide sprite exists
 					anim_sprite.speed_scale = 1.6
 					anim_sprite.play("walk")
 
@@ -107,9 +110,15 @@ func _process_movement(delta: float) -> void:
 		if not test_move(global_transform, down_ahead):
 			_turn_around()
 
-	# 5. Move with the active move_speed
+	# 5. Move & Track Patrol Distance
 	velocity.x = move_dir * move_speed
+	var prev_x: float = global_position.x
 	move_and_slide()
+	
+	if patrol_distance > 0.0 and is_on_floor():
+		distance_traveled += absf(global_position.x - prev_x)
+		if distance_traveled >= patrol_distance:
+			_turn_around()
 
 	# 6. Turn around on walls
 	if is_on_wall():
@@ -118,4 +127,5 @@ func _process_movement(delta: float) -> void:
 
 func _turn_around() -> void:
 	move_dir *= -1.0
+	distance_traveled = 0.0 # Reset distance for the new leg of the patrol
 	update_sprite_direction()

@@ -6,6 +6,7 @@ enum DeeBehavior { PATROL, SLIDE, SLOW_WALK }
 @export_category("Enemy to Spawn")
 @export var enemy_scene: PackedScene
 @export var behavior: DeeBehavior = DeeBehavior.PATROL
+@export var patrol_distance: float = 0.0 # 0 = infinite, or enter pixels (e.g. 48 for 3 tiles)
 @export var face_camera_on_spawn: bool = true
 @export var default_face_left: bool = true
 @export var snap_to_floor: bool = true
@@ -81,9 +82,9 @@ func _spawn_enemy(screen_rect: Rect2) -> void:
 	get_parent().add_child(enemy)
 	current_enemy = enemy
 
-	# 4. Apply Behavior AFTER _ready() has executed!
+	# 4. Apply Behavior and Patrol Distance AFTER _ready()
 	if enemy.has_method("set_behavior"):
-		enemy.set_behavior(behavior)
+		enemy.set_behavior(behavior, patrol_distance)
 
 
 func _get_enemy_foot_offset(enemy: Node2D) -> float:
