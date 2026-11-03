@@ -3,7 +3,7 @@ extends Area2D
 
 @export_category("Destination")
 @export var target_camera_room: ReferenceRect  # Room1_Forest
-@export var target_marker: Marker2D           # Place on the forest ledge where he crashes!
+@export var target_marker: Marker2D           # Marker on the forest ledge where it crashes!
 @export var target_scene: PackedScene         # (For future levels)
 
 @export_category("Flight Tuning")
@@ -39,52 +39,54 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 
 	# 3. 4 SMALL STARS SHOOT OUT (Screenshot 1: X-pattern)
 	_spawn_4_star_burst(kirby.global_position)
+	await get_tree().create_timer(0.35, true).timeout
 
 	# 4. LEVITATE UP AND BACKWARDS
 	var start_pos: Vector2 = kirby.global_position
-	var levitate_pos: Vector2 = start_pos + Vector2(-14.0, -18.0)
+	var levitate_pos: Vector2 = start_pos + Vector2(-5.0, -12.0)
+	var levitate_duration: float = 1.0
 	
 	var lev_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	lev_tween.tween_property(kirby, "global_position", levitate_pos, 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	lev_tween.tween_property(kirby, "global_position", levitate_pos, levitate_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await lev_tween.finished
+	
+	await get_tree().create_timer(0.2, true).timeout
 
-	await get_tree().create_timer(0.08, true).timeout
-
-	# 5. SMOOTHLY UNLOCK CAMERA TO FOREST (Zero snapping, camera follows him seamlessly!)
+	# 5. SMOOTH CAMERA GLIDE: Pan the camera boundaries to the forest
 	if target_camera_room:
-		kirby.expand_camera_room(target_camera_room)
+		kirby.smooth_expand_camera_room(target_camera_room, 2)
 
-	# Determine destination position on the forest ledge
-	var forest_landing_pos: Vector2 = target_marker.global_position if target_marker else (start_pos + Vector2(360.0, 0.0))
-	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-15.0, -90.0)
+	await get_tree().create_timer(0.2, true).timeout
 
 	# 6. THE FLIGHT ACROSS THE CLOUDS:
-	# Part A: Plunge down and forward off the cliff edge
-	var plunge_pos: Vector2 = start_pos + Vector2(55.0, 35.0)
+	var forest_landing_pos: Vector2 = target_marker.global_position
+	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-5.0, -85.0)
+	
+	var plunge_pos: Vector2 = start_pos + Vector2(55.0, 45.0)
+	var plunge_duration: float = 2
+	var rise_duration: float = 1.0
 	
 	# Start small_star trail following him across the clouds
 	_start_flight_trail(kirby, 1.6)
 
 	var flight_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	# Plunge off cliff
-	flight_tween.tween_property(kirby, "global_position", plunge_pos, 0.48).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	# Rocket high into the clouds across to the forest sky
-	flight_tween.tween_property(kirby, "global_position", forest_sky_pos, 1.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	flight_tween.tween_property(kirby, "global_position", plunge_pos, plunge_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	flight_tween.tween_property(kirby, "global_position", forest_sky_pos, rise_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await flight_tween.finished
 
-	# 7. CRASH INTO THE FOREST (Screenshot 2: Small star drops with boom effect!)
-	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos)
+	# 7. CRASH INTO THE FOREST (Slow, graceful drop as small_star)
+	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos, 2.0)
 
-	# 8. FADE OUT TO NEXT STAGE
-	await get_tree().create_timer(0.4, true).timeout
+	# 8. FADE OUT Cutscene Complete
+	await get_tree().create_timer(0.35, true).timeout
 	await ScreenFader.fade(true)
 
 	if target_scene:
 		get_tree().change_scene_to_packed(target_scene)
 
 
-func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2) -> void:
-	# Hide Kirby temporarily while the small_star drops (Screenshot 2)
+func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2, duration: float) -> void:
+	# Keep Kirby hidden inside the star!
 	kirby.visible = false
 	kirby.global_position = landing_pos
 
@@ -97,29 +99,14 @@ func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2
 	drop_star.global_position = sky_start
 	get_parent().add_child(drop_star)
 
-	# Drop straight down to the ground
+	# Drop slowly from the sky
 	var drop_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	drop_tween.tween_property(drop_star, "global_position", landing_pos, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	drop_tween.tween_property(drop_star, "global_position", landing_pos, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await drop_tween.finished
 	drop_star.queue_free()
 
 	# --- BOOM CRASH EFFECT! ---
 	HitFX.spawn(self, "small_explosion", landing_pos)
-
-	# Kirby pops out from the explosion and tumbles forward onto his feet
-	kirby.visible = true
-	if kirby.anim_sprite and kirby.anim_sprite.sprite_frames.has_animation("fall"):
-		kirby.anim_sprite.play("fall")
-
-	var bounce_pos: Vector2 = landing_pos + Vector2(12.0, -14.0)
-	var final_ground: Vector2 = landing_pos + Vector2(20.0, 0.0)
-
-	var tumble_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tumble_tween.tween_property(kirby, "global_position", bounce_pos, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tumble_tween.tween_property(kirby, "global_position", final_ground, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	await tumble_tween.finished
-
-	kirby.dismount_warp_star()
 
 
 # 4 small stars shooting diagonally outward (Screenshot 1)
