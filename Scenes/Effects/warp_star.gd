@@ -1,20 +1,29 @@
+@tool
 class_name WarpStar
 extends Area2D
 
 @export_category("Destination")
 @export var target_camera_room: ReferenceRect  # Room1_Forest
-@export var target_marker: Marker2D           # Marker on the forest ledge
-@export var target_scene: PackedScene         # (For future levels)
+@export var levitate_marker: Marker2D          # Marker where he levitates to at the start
+@export var forest_marker: Marker2D            # Marker where the small star crashes in the forest
+@export var target_scene: PackedScene          # (For future levels)
+
+@export_category("Visual Flight Path Choreography")
+@export var flight_path_container: Node2D
+@export var flight_duration: float = 4.0
+@export var forest_crash_duration: float = 2.0
 
 @export_category("Flight Tuning")
 @export var flight_faces_right: bool = true
-@export var flight_duration: float = 5
 
 @onready var anim_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var is_activated: bool = false
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+
 	if anim_sprite and anim_sprite.sprite_frames and anim_sprite.sprite_frames.has_animation("warp_star"):
 		anim_sprite.play("warp_star")
 	body_entered.connect(_on_body_entered)
@@ -35,7 +44,7 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 	if anim_sprite:
 		anim_sprite.visible = false
 
-	# 2. Board star and ensure Kirby faces right
+	# 2. Board star and face right
 	kirby.mount_warp_star(self, flight_faces_right)
 
 	# 3. 4 SMALL STARS SHOOT OUT (Screenshot 1: X-pattern)
@@ -44,7 +53,7 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 
 	# 4. LEVITATE UP AND BACKWARDS
 	var start_pos: Vector2 = kirby.global_position
-	var levitate_pos: Vector2 = start_pos + Vector2(-12.0, -14.0)
+	var levitate_pos: Vector2 = levitate_marker.global_position
 	var lev_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	lev_tween.tween_property(kirby, "global_position", levitate_pos, 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await lev_tween.finished
@@ -52,7 +61,7 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 	await get_tree().create_timer(0.12, true).timeout
 
 	# -------------------------------------------------------------------------
-	# 5. CAMERA SETUP
+	# 5. CAMERA: Pans all the way to the right camera limit! (Screenshot 1)
 	# -------------------------------------------------------------------------
 	var cam: Camera2D = kirby.cam
 	var start_cam_pos: Vector2 = cam.get_screen_center_position() if cam else start_pos
@@ -60,79 +69,74 @@ func _start_launch_sequence(kirby: Kirby) -> void:
 
 	if target_camera_room and cam:
 		var rect: Rect2 = target_camera_room.get_global_rect()
-		# Expand right limit so the camera is allowed to scroll into the forest
+		# Expand right boundary to the forest
 		cam.limit_right = max(cam.limit_right, int(rect.end.x))
-		# Calculate the final camera X position centered on the forest marker
-		if target_marker:
-			target_cam_x = clampf(target_marker.global_position.x, rect.position.x + 80.0, rect.end.x - 80.0)
-		else:
-			target_cam_x = rect.position.x + 80.0
+		# Pans all the way to the right limit so it frames the forest (Screenshot 1)
+		var viewport_half_w: float = get_viewport_rect().size.x * 0.5
+		target_cam_x = rect.end.x - viewport_half_w
 
 	# -------------------------------------------------------------------------
-	# 6. BUTTERY SMOOTH LOOP-DE-LOOP SPLINE
+	# 6. BUILD SMOOTH SPLINE FROM SCENE MARKERS
 	# -------------------------------------------------------------------------
-	var forest_landing_pos: Vector2 = target_marker.global_position if target_marker else (start_pos + Vector2(380.0, 0.0))
-	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-10.0, -85.0)
-
-	var curve := Curve2D.new()
-	# Point 0: Levitate apex on cliff
-	curve.add_point(levitate_pos, Vector2.ZERO, Vector2(25.0, 10.0))
-	
-	# Point 1: Plunge down off cliff towards ground (Panel 1)
-	curve.add_point(start_pos + Vector2(65.0, 48.0), Vector2(-25.0, -20.0), Vector2(25.0, 8.0))
-	
-	# Point 2: Forward curve along ground (Panel 2)
-	curve.add_point(start_pos + Vector2(110.0, 42.0), Vector2(-15.0, 5.0), Vector2(-5.0, -25.0))
-	
-	# Point 3: Loop-de-loop apex (curves UP and BACKWARDS!)
-	curve.add_point(start_pos + Vector2(88.0, 14.0), Vector2(15.0, 5.0), Vector2(-15.0, -2.0))
-	
-	# Point 4: Loop exit (curves back down and forward)
-	curve.add_point(start_pos + Vector2(74.0, 32.0), Vector2(-5.0, -15.0), Vector2(20.0, 15.0))
-	
-	# Point 5: Climbing forward into the sky (Panel 3)
-	curve.add_point(start_pos + Vector2(140.0, -5.0), Vector2(-25.0, 20.0), Vector2(40.0, -30.0))
-	
-	# Point 6: Rocketing high over the forest sky
-	curve.add_point(forest_sky_pos, Vector2(-60.0, 50.0), Vector2.ZERO)
-
+	var curve := _build_curve_from_markers(levitate_pos)
 	var curve_len: float = curve.get_baked_length()
 
-	# Start trail of small_stars following Kirby
+	# Start trail of small_stars
 	_start_flight_trail(kirby, flight_duration)
 
-	# -------------------------------------------------------------------------
-	# COMBINED FLIGHT & CAMERA PAN
-	# Kirby moves along the loop; the camera smoothly dollies to the right!
-	# -------------------------------------------------------------------------
+	# Glide smoothly along the markers
 	var flight_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	flight_tween.tween_method(func(t: float):
 		if is_instance_valid(kirby):
-			# 1. Kirby swoops and loops along the curve
+			#. Kirby follows your visual markers!
 			kirby.global_position = curve.sample_baked(t * curve_len)
 
-			# 2. Camera steadily glides to the right towards the forest (Y is locked!)
-			if cam:
-				var current_pan_x: float = lerpf(start_cam_pos.x, target_cam_x, t)
-				cam.global_position = Vector2(current_pan_x, start_cam_pos.y)
-	, 0.0, 1.0, flight_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			#. Camera steadily glides to the right limit
+			var current_pan_x: float = lerpf(start_cam_pos.x, target_cam_x, t)
+			cam.global_position = Vector2(current_pan_x, start_cam_pos.y)
+			, 0.0, 1.0, flight_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	await flight_tween.finished
 
-	# 7. CRASH INTO THE FOREST (Slow 2.0s drop as small_star)
-	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos, 2.0)
+	# 7. CRASH INTO THE FOREST
+	var forest_landing_pos: Vector2 = forest_marker.global_position
+	var forest_sky_pos: Vector2 = forest_landing_pos + Vector2(-5.0, -85.0)
+	await _handle_forest_crash(kirby, forest_sky_pos, forest_landing_pos, forest_crash_duration)
 
-	# 8. FADE OUT CUTSCENE COMPLETE (Kirby stays hidden inside the crash!)
-	await get_tree().create_timer(0.35, true).timeout
+	# 8. FADE OUT CUTSCENE COMPLETE
+	await get_tree().create_timer(0.8, true).timeout
 	await ScreenFader.fade(true)
 
 	if target_scene:
 		get_tree().change_scene_to_packed(target_scene)
 
 
+## Automatically connects your scene markers into a silky-smooth spline!
+func _build_curve_from_markers(start_pos: Vector2) -> Curve2D:
+	var curve := Curve2D.new()
+	curve.bake_interval = 4.0
+
+	var points: Array[Vector2] = [start_pos]
+
+	if flight_path_container:
+		for child in flight_path_container.get_children():
+			if child is Node2D:
+				points.append(child.global_position)
+
+	# Auto-calculate smooth Catmull-Rom tangents so the curve is completely smooth
+	for i in range(points.size()):
+		var p_curr: Vector2 = points[i]
+		var p_prev: Vector2 = points[max(i - 1, 0)]
+		var p_next: Vector2 = points[min(i + 1, points.size() - 1)]
+
+		var tangent: Vector2 = (p_next - p_prev) * 0.25
+		curve.add_point(p_curr, -tangent, tangent)
+
+	return curve
+
+
 func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2, duration: float) -> void:
 	kirby.visible = false
-	kirby.global_position = landing_pos
 
 	var drop_star := AnimatedSprite2D.new()
 	var effects_frames: SpriteFrames = load("res://Animations/effects.tres") as SpriteFrames
@@ -143,7 +147,7 @@ func _handle_forest_crash(kirby: Kirby, sky_start: Vector2, landing_pos: Vector2
 	drop_star.global_position = sky_start
 	get_parent().add_child(drop_star)
 
-	# Slow graceful drop from the sky (2.0s)
+	# Slow graceful drop from the sky
 	var drop_tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	drop_tween.tween_property(drop_star, "global_position", landing_pos, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await drop_tween.finished
@@ -190,3 +194,40 @@ func _start_flight_trail(kirby: Kirby, duration: float) -> void:
 			break
 		HitFX.spawn(self, "small_star", kirby.global_position + Vector2(randf_range(-4, 4), randf_range(-4, 4)))
 		await get_tree().create_timer(interval, true).timeout
+
+
+# -----------------------------------------------------------------------------
+# LIVE EDITOR PATH PREVIEW
+# -----------------------------------------------------------------------------
+func _process(_delta: float) -> void:
+	# Continuously redraws in the 2D editor as you move markers
+	if Engine.is_editor_hint():
+		queue_redraw()
+
+
+func _draw() -> void:
+	# Only draw in the editor or in debug builds
+	if not Engine.is_editor_hint() and not OS.is_debug_build():
+		return
+	if not flight_path_container:
+		return
+
+	# Kirby levitates up
+	var curve := _build_curve_from_markers(levitate_marker.global_position)
+	var baked := curve.get_baked_points()
+	if baked.size() < 2:
+		return
+
+	# Convert world points to local coordinates for drawing
+	var local_pts: PackedVector2Array = []
+	for pt in baked:
+		local_pts.append(to_local(pt))
+
+	# Draws a golden rollercoaster spline connecting all your markers!
+	draw_polyline(local_pts, Color("ffd700"), 1.0, true)
+
+	# Draws a small red dot at each marker point
+	if flight_path_container:
+		for child in flight_path_container.get_children():
+			if child is Node2D:
+				draw_circle(to_local(child.global_position), 2.5, Color("ff0000ff"))
