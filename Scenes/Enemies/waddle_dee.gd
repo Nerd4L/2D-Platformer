@@ -59,7 +59,7 @@ func die() -> void:
 	
 	var kirby := get_tree().get_first_node_in_group("player")
 	if kirby and kirby.has_method("add_score"):
-		kirby.add_score(100)
+		kirby.add_score(200)
 		
 	queue_free()
 
