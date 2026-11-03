@@ -11,6 +11,22 @@ region = Rect2(16, 24, 8, 8)
 atlas = ExtResource("1_sprlj")
 region = Rect2(24, 24, 8, 8)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_mqf2c"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(24, 16, 16, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7wqu8"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(0, 16, 24, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tsw34"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(0, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qdh5o"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(16, 24, 8, 8)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_ny26j"]
 atlas = ExtResource("1_sprlj")
 region = Rect2(8, 24, 8, 8)
@@ -19,7 +35,11 @@ region = Rect2(8, 24, 8, 8)
 atlas = ExtResource("1_sprlj")
 region = Rect2(0, 24, 8, 8)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tsw34"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_fqivn"]
+atlas = ExtResource("1_sprlj")
+region = Rect2(0, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ux5h0"]
 atlas = ExtResource("1_sprlj")
 region = Rect2(32, 0, 8, 8)
 
@@ -41,6 +61,84 @@ layout_mode = 0
 offset_right = 160.0
 offset_bottom = 16.0
 
+[node name="ScoreLabel" type="TextureRect" parent="Container" unique_id=1262184402]
+layout_mode = 0
+offset_left = 32.0
+offset_right = 48.0
+offset_bottom = 8.0
+texture = SubResource("AtlasTexture_mqf2c")
+
+[node name="KirbyLabel" type="TextureRect" parent="Container" unique_id=1987695041]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 8.0
+offset_right = 48.0
+offset_bottom = 16.0
+texture = SubResource("AtlasTexture_7wqu8")
+
+[node name="ScoreContainer" type="HBoxContainer" parent="Container" unique_id=1283773727]
+layout_mode = 0
+offset_left = 56.0
+offset_right = 104.0
+offset_bottom = 8.0
+theme_override_constants/separation = 0
+
+[node name="D1" type="TextureRect" parent="Container/ScoreContainer" unique_id=434478955]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="D2" type="TextureRect" parent="Container/ScoreContainer" unique_id=464261373]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="D3" type="TextureRect" parent="Container/ScoreContainer" unique_id=1997098780]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="D4" type="TextureRect" parent="Container/ScoreContainer" unique_id=1370460178]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="D5" type="TextureRect" parent="Container/ScoreContainer" unique_id=1138836885]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="D6" type="TextureRect" parent="Container/ScoreContainer" unique_id=1404296372]
+layout_mode = 2
+texture = SubResource("AtlasTexture_tsw34")
+
+[node name="PipContainer" type="HBoxContainer" parent="Container" unique_id=1615856785]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 8.0
+offset_right = 104.0
+offset_bottom = 16.0
+theme_override_constants/separation = 0
+
+[node name="Pip1" type="TextureRect" parent="Container/PipContainer" unique_id=27622943]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
+[node name="Pip2" type="TextureRect" parent="Container/PipContainer" unique_id=805486135]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
+[node name="Pip3" type="TextureRect" parent="Container/PipContainer" unique_id=1444390091]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
+[node name="Pip4" type="TextureRect" parent="Container/PipContainer" unique_id=1163575463]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
+[node name="Pip5" type="TextureRect" parent="Container/PipContainer" unique_id=136972009]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
+[node name="Pip6" type="TextureRect" parent="Container/PipContainer" unique_id=1366119146]
+layout_mode = 2
+texture = SubResource("AtlasTexture_qdh5o")
+
 [node name="KirbyIcon" type="TextureRect" parent="Container" unique_id=663538760]
 layout_mode = 0
 offset_left = 112.0
@@ -57,36 +155,18 @@ offset_right = 128.0
 offset_bottom = 16.0
 texture = SubResource("AtlasTexture_fdl0h")
 
-[node name="LivesNumber" type="TextureRect" parent="Container" unique_id=106443678]
+[node name="LivesContainer" type="HBoxContainer" parent="Container" unique_id=623180339]
 layout_mode = 0
 offset_left = 128.0
 offset_top = 8.0
-offset_right = 136.0
-offset_bottom = 16.0
-texture = SubResource("AtlasTexture_tsw34")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Container" unique_id=1615856785]
-layout_mode = 0
-offset_left = 56.0
-offset_top = 8.0
-offset_right = 104.0
+offset_right = 144.0
 offset_bottom = 16.0
 theme_override_constants/separation = 0
 
-[node name="Pip1" type="TextureRect" parent="Container/HBoxContainer" unique_id=27622943]
+[node name="LivesNumber1" type="TextureRect" parent="Container/LivesContainer" unique_id=106443678]
 layout_mode = 2
+texture = SubResource("AtlasTexture_fqivn")
 
-[node name="Pip2" type="TextureRect" parent="Container/HBoxContainer" unique_id=208972175]
+[node name="LivesNumber2" type="TextureRect" parent="Container/LivesContainer" unique_id=535684581]
 layout_mode = 2
-
-[node name="Pip3" type="TextureRect" parent="Container/HBoxContainer" unique_id=547624964]
-layout_mode = 2
-
-[node name="Pip4" type="TextureRect" parent="Container/HBoxContainer" unique_id=712156238]
-layout_mode = 2
-
-[node name="Pip5" type="TextureRect" parent="Container/HBoxContainer" unique_id=1728870142]
-layout_mode = 2
-
-[node name="Pip6" type="TextureRect" parent="Container/HBoxContainer" unique_id=1247218006]
-layout_mode = 2
+texture = SubResource("AtlasTexture_ux5h0")
