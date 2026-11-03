@@ -16,12 +16,12 @@ region = Rect2(64, 0, 16, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ca7oe"]
 shader = ExtResource("4_kpv5q")
-shader_parameter/palette_choice = 1
+shader_parameter/palette_choice = 3
 shader_parameter/is_screen_filter = false
-shader_parameter/custom_color_0 = Color(1, 1, 1, 1)
-shader_parameter/custom_color_1 = Color(0.66, 0.66, 0.66, 1)
-shader_parameter/custom_color_2 = Color(0.33, 0.33, 0.33, 1)
-shader_parameter/custom_color_3 = Color(0, 0, 0, 1)
+shader_parameter/custom_0 = Color(0.7490196, 0.9372549, 0.93333334, 1)
+shader_parameter/custom_1 = Color(0.5058824, 0.7372549, 0.9529412, 1)
+shader_parameter/custom_2 = Color(0.24313726, 0.37254903, 0.70980394, 1)
+shader_parameter/custom_3 = Color(0, 0, 0, 1)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6gnmv"]
 size = Vector2(10, 12)
@@ -69,6 +69,7 @@ collision_mask = 8
 shape = SubResource("RectangleShape2D_6gnmv")
 
 [node name="StandingCollider" type="CollisionShape2D" parent="." unique_id=1776704243]
+visible = false
 position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_tjrnq")
 

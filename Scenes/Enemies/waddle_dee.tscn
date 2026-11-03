@@ -6,12 +6,12 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kaxde"]
 shader = ExtResource("2_nwon6")
-shader_parameter/palette_choice = 2
+shader_parameter/palette_choice = 3
 shader_parameter/is_screen_filter = false
-shader_parameter/custom_color_0 = Color(1, 1, 1, 1)
-shader_parameter/custom_color_1 = Color(0.66, 0.66, 0.66, 1)
-shader_parameter/custom_color_2 = Color(0.33, 0.33, 0.33, 1)
-shader_parameter/custom_color_3 = Color(0, 0, 0, 1)
+shader_parameter/custom_0 = Color(1, 1, 1, 1)
+shader_parameter/custom_1 = Color(0.66, 0.66, 0.66, 1)
+shader_parameter/custom_2 = Color(0.33, 0.33, 0.33, 1)
+shader_parameter/custom_3 = Color(0, 0, 0, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fw68i"]
 atlas = ExtResource("2_n6ouj")
