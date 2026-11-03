@@ -13,6 +13,10 @@ shader_parameter/custom_1 = Color(0.66, 0.66, 0.66, 1)
 shader_parameter/custom_2 = Color(0.33, 0.33, 0.33, 1)
 shader_parameter/custom_3 = Color(0, 0, 0, 1)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_nwon6"]
+atlas = ExtResource("2_n6ouj")
+region = Rect2(0, 0, 16, 16)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_fw68i"]
 atlas = ExtResource("2_n6ouj")
 region = Rect2(0, 0, 16, 16)
@@ -23,6 +27,14 @@ region = Rect2(0, 16, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_spes0"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nwon6")
+}],
+"loop": 1,
+"name": &"slide",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_fw68i")
@@ -50,8 +62,7 @@ collider = NodePath("CollisionShape2D")
 z_index = 4
 material = SubResource("ShaderMaterial_kaxde")
 sprite_frames = SubResource("SpriteFrames_spes0")
-animation = &"walk"
-frame_progress = 0.6124255
+animation = &"slide"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=629876666]
 position = Vector2(0, 1)

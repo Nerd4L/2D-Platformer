@@ -37,7 +37,6 @@ position = Vector2(1147, -26)
 
 [node name="Kirby" parent="." unique_id=1643385544 node_paths=PackedStringArray("debug_spawn_marker", "debug_camera_room", "terrain_layer", "starting_camera_room") instance=ExtResource("1_ca7oe")]
 position = Vector2(-23, -24)
-use_debug_spawn = true
 debug_spawn_marker = NodePath("../DebugSpawn")
 debug_camera_room = NodePath("../CameraRooms/Room1_Plains")
 terrain_layer = NodePath("../TerrainLayer")
@@ -101,17 +100,25 @@ position = Vector2(1628, -27)
 [node name="Spawners" type="Node2D" parent="." unique_id=909710987]
 
 [node name="EnemySpawner1" parent="Spawners" unique_id=431515235 instance=ExtResource("3_o5f80")]
-position = Vector2(441, -14)
+position = Vector2(175, 3)
 enemy_scene = ExtResource("4_13kcy")
+behavior = 2
 face_camera_on_spawn = false
 
 [node name="EnemySpawner2" parent="Spawners" unique_id=1594276842 instance=ExtResource("3_o5f80")]
-position = Vector2(331, -22)
+position = Vector2(200, 4)
 enemy_scene = ExtResource("4_13kcy")
+behavior = 2
 face_camera_on_spawn = false
 
 [node name="EnemySpawner3" parent="Spawners" unique_id=2025830885 instance=ExtResource("3_o5f80")]
-position = Vector2(251, -18)
+position = Vector2(265, -18)
+enemy_scene = ExtResource("4_13kcy")
+behavior = 1
+face_camera_on_spawn = false
+
+[node name="EnemySpawner4" parent="Spawners" unique_id=1217995567 instance=ExtResource("3_o5f80")]
+position = Vector2(442, -2)
 enemy_scene = ExtResource("4_13kcy")
 face_camera_on_spawn = false
 
