@@ -985,10 +985,14 @@ func _enter_door(door: Door) -> void:
 
 	await ScreenFader.fade(true)
 
-	for node in get_tree().get_nodes_in_group("resettable"):
-		if node is Projectile:
-			node.queue_free()
+	# 1. Clean up stray projectiles & effects
+	get_tree().call_group("projectiles", "queue_free")
+	get_tree().call_group("effects", "queue_free")
 
+	# 2. Reset all enemy spawners so defeated enemies can respawn
+	get_tree().call_group("resettable", "reset_state")
+
+	# 3. Move Kirby and update room
 	global_position = door.target_position_node.global_position
 	fall_start_y = global_position.y
 	if door.target_camera_room:

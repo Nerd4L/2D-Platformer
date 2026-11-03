@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cctarqt0f4g3q"]
+
+[ext_resource type="SpriteFrames" uid="uid://dukwkum2y1kse" path="res://Animations/enemies.tres" id="1_7sib8"]
+[ext_resource type="Script" uid="uid://5mc6ihkllf8t" path="res://Scenes/Enemies/bronto_burt.gd" id="1_encbu"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(10, 10)
+
+[node name="BrontoBurt" type="CharacterBody2D" unique_id=1741120345]
+z_index = 4
+collision_layer = 8
+script = ExtResource("1_encbu")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=668728527]
+sprite_frames = ExtResource("1_7sib8")
+animation = &"bronto_fly"
+frame = 1
+frame_progress = 0.9940293
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=84397562]
+shape = SubResource("RectangleShape2D_tjrnq")

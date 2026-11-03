@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://wafb37hawebn" path="res://Scenes/Effects/warp_star.tscn" id="4_o5f80"]
 [ext_resource type="Script" uid="uid://ditpsr0yeqirw" path="res://Scenes/Level Objects/door.gd" id="5_joajk"]
 [ext_resource type="PackedScene" uid="uid://bkr4gnp51umom" path="res://Scenes/UI/hud.tscn" id="6_qhhv5"]
+[ext_resource type="Script" uid="uid://b0bblgab7vwwq" path="res://Scenes/Level Objects/enemy_spawner.gd" id="7_joajk"]
+[ext_resource type="PackedScene" uid="uid://cctarqt0f4g3q" path="res://Scenes/Enemies/bronto_burt.tscn" id="8_qhhv5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_53r2y"]
 shader = ExtResource("2_o5f80")
@@ -33,11 +35,10 @@ size = Vector2(4, 16)
 [node name="Green Greens 1-1" type="Node2D" unique_id=1909655078]
 
 [node name="DebugSpawn" type="Marker2D" parent="." unique_id=1213183762]
-position = Vector2(1147, -26)
+position = Vector2(1002, -26)
 
 [node name="Kirby" parent="." unique_id=1643385544 node_paths=PackedStringArray("debug_spawn_marker", "debug_camera_room", "terrain_layer", "starting_camera_room") instance=ExtResource("1_ca7oe")]
 position = Vector2(-23, -24)
-use_debug_spawn = true
 debug_spawn_marker = NodePath("../DebugSpawn")
 debug_camera_room = NodePath("../CameraRooms/Room1_Plains")
 terrain_layer = NodePath("../TerrainLayer")
@@ -106,40 +107,95 @@ position = Vector2(1628, -27)
 position = Vector2(175, 3)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = null
-face_camera_on_spawn = false
 
 [node name="EnemySpawner2" parent="Spawners/Waddle Dees" unique_id=1594276842 instance=ExtResource("3_o5f80")]
 position = Vector2(200, 4)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = null
-face_camera_on_spawn = false
 
 [node name="EnemySpawner3" parent="Spawners/Waddle Dees" unique_id=2025830885 instance=ExtResource("3_o5f80")]
 position = Vector2(302, -16)
 enemy_scene = ExtResource("4_13kcy")
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = 2.0
-face_camera_on_spawn = false
 
 [node name="EnemySpawner4" parent="Spawners/Waddle Dees" unique_id=1217995567 instance=ExtResource("3_o5f80")]
 position = Vector2(472, 2)
 enemy_scene = ExtResource("4_13kcy")
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = 2.0
-face_camera_on_spawn = false
 
 [node name="EnemySpawner5" parent="Spawners/Waddle Dees" unique_id=1855519823 instance=ExtResource("3_o5f80")]
 position = Vector2(971, 6)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 1
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = 5.0
-face_camera_on_spawn = false
 
 [node name="EnemySpawner6" parent="Spawners/Waddle Dees" unique_id=809345867 instance=ExtResource("3_o5f80")]
 position = Vector2(1062, 7)
 enemy_scene = ExtResource("4_13kcy")
+flight_speed_x = null
+flight_speed_y = null
+wave_frequency = null
+wave_amplitude = null
 patrol_tiles = 1.0
-face_camera_on_spawn = false
+
+[node name="Bronto Burts" type="Node2D" parent="Spawners" unique_id=992991871]
+
+[node name="EnemySpawner1" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=914115339]
+position = Vector2(436, -54)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("8_qhhv5")
+behavior = 3
+patrol_tiles = 3.0
+snap_to_floor = false
+
+[node name="EnemySpawner2" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=19166090]
+position = Vector2(667, -64)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("8_qhhv5")
+snap_to_floor = false
+
+[node name="EnemySpawner3" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=35194879]
+position = Vector2(689, -56)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("8_qhhv5")
+snap_to_floor = false
+
+[node name="EnemySpawner4" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=1723887872]
+position = Vector2(920, -54)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("8_qhhv5")
+behavior = 3
+snap_to_floor = false
+
+[node name="EnemySpawner5" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=870360448]
+position = Vector2(1216, -57)
+script = ExtResource("7_joajk")
+enemy_scene = ExtResource("8_qhhv5")
+wave_frequency = 5.5
+wave_amplitude = 50.0
+snap_to_floor = false
 
 [node name="Doors" type="Node2D" parent="." unique_id=1787275505]
 

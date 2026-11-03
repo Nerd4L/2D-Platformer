@@ -3,18 +3,56 @@ extends Marker2D
 class_name EnemySpawner
 
 enum DeeBehavior { PATROL, SLIDE, SLOW_WALK }
+enum BrontoBehavior { WAVE, DIVE, BOUNCE }
 
 @export_category("Enemy to Spawn")
-@export var enemy_scene: PackedScene
-@export var behavior: DeeBehavior = DeeBehavior.PATROL
-const TILE_SIZE: float = 16.0
+@export var enemy_scene: PackedScene:
+	set(val):
+		enemy_scene = val
+		notify_property_list_changed() # Refreshes inspector immediately when scene changes
+@export var behavior: int = 0
 
+@export_group("Bronto Burt Flight Tuning")
+@export var flight_speed_x: float = 38.0:
+	set(val):
+		flight_speed_x = val
+		queue_redraw()
+@export var flight_speed_y: float = 24.0:
+	set(val):
+		flight_speed_y = val
+		queue_redraw()
+@export var wave_frequency: float = 4.5:
+	set(val):
+		wave_frequency = maxf(val, 0.1)
+		queue_redraw()
+@export var wave_amplitude: float = 16.0:
+	set(val):
+		wave_amplitude = maxf(val, 0.0)
+		queue_redraw()
+@export_group("", "")
+
+func _validate_property(property: Dictionary) -> void:
+	if property.name == "behavior":
+		var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
+		
+		if "waddle_dee" in path:
+			property.hint = PROPERTY_HINT_ENUM
+			property.hint_string = "PATROL,SLIDE,SLOW_WALK"
+		elif "bronto_burt" in path:
+			property.hint = PROPERTY_HINT_ENUM
+			property.hint_string = "WAVE,DIVE,BOUNCE,VERTICAL"
+			if property.name in ["flight_speed_x", "flight_speed_y", "wave_frequency", "wave_amplitude"]:
+				property.usage &= ~PROPERTY_USAGE_EDITOR
+		else:
+			# Hide behavior dropdown completely if no enemy or unknown enemy is selected
+			property.usage &= ~PROPERTY_USAGE_EDITOR
+
+const TILE_SIZE: float = 16.0
 @export var patrol_tiles: float = 0.0: # Enter tiles as float (e.g. 2.0, 3.5)
 	set(val):
 		patrol_tiles = maxf(val, 0.0)
 		queue_redraw()
 
-@export var face_camera_on_spawn: bool = true
 @export var default_face_left: bool = true:
 	set(val):
 		default_face_left = val
@@ -65,30 +103,26 @@ func _physics_process(_delta: float) -> void:
 
 	if can_spawn:
 		if spawn_zone.has_point(global_position):
-			_spawn_enemy(screen_rect)
+			_spawn_enemy()
 			can_spawn = false
 	else:
 		if not reset_zone.has_point(global_position):
 			can_spawn = true
 
 
-func _spawn_enemy(screen_rect: Rect2) -> void:
-	if not enemy_scene:
-		return
-		
+func _spawn_enemy() -> void:
 	var enemy := enemy_scene.instantiate() as Node2D
 	
 	var spawn_pos: Vector2 = global_position
-	if snap_to_floor:
+	var is_flying: bool = enemy.get("is_flying") == true
+	
+	if snap_to_floor and not is_flying:
 		var foot_offset: float = _get_enemy_foot_offset(enemy)
 		spawn_pos = _get_floor_position_below(foot_offset)
+		
 	enemy.global_position = spawn_pos
 	
 	if "start_facing_left" in enemy:
-		if face_camera_on_spawn:
-			var cam_center_x: float = screen_rect.get_center().x
-			enemy.start_facing_left = global_position.x >= cam_center_x
-		else:
 			enemy.start_facing_left = default_face_left
 			
 	get_parent().add_child(enemy)
@@ -96,6 +130,12 @@ func _spawn_enemy(screen_rect: Rect2) -> void:
 
 	if enemy.has_method("set_behavior"):
 		enemy.set_behavior(behavior, patrol_tiles)
+	
+	if "flight_speed_x" in enemy:
+		enemy.flight_speed_x = flight_speed_x
+		enemy.flight_speed_y = flight_speed_y
+		enemy.wave_frequency = wave_frequency
+		enemy.wave_amplitude = wave_amplitude
 
 
 func _get_enemy_foot_offset(enemy: Node2D) -> float:
@@ -132,19 +172,61 @@ func _draw() -> void:
 		return
 
 	# Crosshair at spawn point
-	var point_col := Color(0.2, 0.8, 0.2, 0.9) # Game Boy green
+	var point_col := Color(0.2, 0.8, 0.2, 0.9)
 	draw_line(Vector2(-3.0, 0.0), Vector2(3.0, 0.0), point_col, 1.0)
 	draw_line(Vector2(0.0, -3.0), Vector2(0.0, 3.0), point_col, 1.0)
 
+	var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
+	var is_burt: bool = ("bronto" in path or "burt" in path)
+	var dir_x: float = -1.0 if default_face_left else 1.0
+	var line_col := Color(0.1, 0.9, 0.7, 0.85)
+
+	# --- BRONTO BURT WAVE FLIGHT PREVIEW ---
+	if is_burt and behavior == 0: # Behavior 0 = WAVE
+		# If patrol_tiles is 0, preview 2 full wave cycles (or at least 4 tiles)
+		var wavelength_px: float = (flight_speed_x * (TAU / wave_frequency))
+		var total_px: float = (patrol_tiles * TILE_SIZE) if patrol_tiles > 0.0 else maxf(wavelength_px * 2.0, 64.0)
+
+		# Physical vertical displacement = amplitude / frequency
+		var max_disp_y: float = wave_amplitude / wave_frequency
+
+		# Draw faint upper and lower amplitude boundary rails
+		var rail_col := Color(0.1, 0.9, 0.7, 0.2)
+		draw_line(Vector2(0.0, -max_disp_y), Vector2(dir_x * total_px, -max_disp_y), rail_col, 1.0)
+		draw_line(Vector2(0.0, max_disp_y), Vector2(dir_x * total_px, max_disp_y), rail_col, 1.0)
+
+		# Plot the sine wave curve
+		var points: PackedVector2Array = []
+		var sample_count: int = int(clampf(total_px * 0.75, 20.0, 120.0))
+
+		for i in range(sample_count + 1):
+			var t_ratio: float = float(i) / float(sample_count)
+			var px: float = t_ratio * total_px
+			var time_t: float = px / maxf(flight_speed_x, 1.0)
+			var py: float = -sin(wave_frequency * time_t) * max_disp_y
+			points.append(Vector2(dir_x * px, py))
+
+		draw_polyline(points, line_col, 1.0)
+
+		# Start & End Ticks
+		draw_line(Vector2(0.0, -max_disp_y - 2.0), Vector2(0.0, max_disp_y + 2.0), line_col, 1.5)
+		var end_x: float = dir_x * total_px
+		draw_line(Vector2(end_x, -max_disp_y - 2.0), Vector2(end_x, max_disp_y + 2.0), line_col, 1.5)
+		return
+
+	# --- STANDARD STRAIGHT / VERTICAL PATROL DRAWING ---
 	if patrol_tiles > 0.0:
 		var patrol_px: float = patrol_tiles * TILE_SIZE
-		var dir: float = -1.0 if default_face_left else 1.0
-		var end_pt := Vector2(dir * patrol_px, 0.0)
-		var line_col := Color(0.1, 0.9, 0.7, 0.85)
+		var is_vertical: bool = (is_burt and behavior == 3) # Index 3 = VERTICAL
 
-		# Patrol path line
-		draw_line(Vector2.ZERO, end_pt, line_col, 1.0)
-		
-		# Start & End Ticks
-		draw_line(Vector2(0.0, -4.0), Vector2(0.0, 4.0), line_col, 1.5)
-		draw_line(end_pt + Vector2(0.0, -4.0), end_pt + Vector2(0.0, 4.0), line_col, 1.5)
+		var end_pt: Vector2
+		if is_vertical:
+			end_pt = Vector2(0.0, patrol_px)
+			draw_line(Vector2.ZERO, end_pt, line_col, 1.0)
+			draw_line(Vector2(-4.0, 0.0), Vector2(4.0, 0.0), line_col, 1.5)
+			draw_line(end_pt + Vector2(-4.0, 0.0), end_pt + Vector2(4.0, 0.0), line_col, 1.5)
+		else:
+			end_pt = Vector2(dir_x * patrol_px, 0.0)
+			draw_line(Vector2.ZERO, end_pt, line_col, 1.0)
+			draw_line(Vector2(0.0, -4.0), Vector2(0.0, 4.0), line_col, 1.5)
+			draw_line(end_pt + Vector2(0.0, -4.0), end_pt + Vector2(0.0, 4.0), line_col, 1.5)
