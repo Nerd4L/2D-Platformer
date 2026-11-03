@@ -16,7 +16,7 @@ region = Rect2(64, 0, 16, 16)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ca7oe"]
 shader = ExtResource("4_kpv5q")
-shader_parameter/palette_choice = 3
+shader_parameter/palette_choice = 0
 shader_parameter/is_screen_filter = false
 shader_parameter/custom_0 = Color(0.7490196, 0.9372549, 0.93333334, 1)
 shader_parameter/custom_1 = Color(0.5058824, 0.7372549, 0.9529412, 1)
@@ -57,7 +57,7 @@ star_particle_texture = SubResource("AtlasTexture_1e83d")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1792995418]
 material = SubResource("ShaderMaterial_ca7oe")
 sprite_frames = ExtResource("4_7n2k2")
-animation = &"idle"
+animation = &"warp_star_ride"
 offset = Vector2(0, -4)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1188633967]
@@ -89,7 +89,6 @@ disabled = true
 limit_right = 1200
 
 [node name="InhalePivot" type="Node2D" parent="." unique_id=1184429212]
-visible = false
 position = Vector2(0, -2)
 
 [node name="InhaleArea" type="Area2D" parent="InhalePivot" unique_id=166030404]
@@ -97,5 +96,6 @@ collision_layer = 0
 collision_mask = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InhalePivot/InhaleArea" unique_id=1445988549]
+visible = false
 position = Vector2(24, 0)
 shape = SubResource("RectangleShape2D_alboy")

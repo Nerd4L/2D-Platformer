@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://wafb37hawebn"]
+
+[ext_resource type="Script" uid="uid://crgdfam5ivmc8" path="res://Scenes/Effects/warp_star.gd" id="1_4bihi"]
+[ext_resource type="SpriteFrames" uid="uid://c6a5yc3xrmib3" path="res://Animations/effects.tres" id="1_exueh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(8, 8)
+
+[node name="WarpStar" type="Area2D" unique_id=671121912]
+collision_layer = 0
+collision_mask = 4
+script = ExtResource("1_4bihi")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=730740233]
+sprite_frames = ExtResource("1_exueh")
+animation = &"warp_star"
+frame_progress = 0.91017103
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=536718695]
+shape = SubResource("RectangleShape2D_tjrnq")

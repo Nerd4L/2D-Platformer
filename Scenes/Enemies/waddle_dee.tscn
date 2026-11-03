@@ -6,7 +6,7 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kaxde"]
 shader = ExtResource("2_nwon6")
-shader_parameter/palette_choice = 3
+shader_parameter/palette_choice = 0
 shader_parameter/is_screen_filter = false
 shader_parameter/custom_0 = Color(1, 1, 1, 1)
 shader_parameter/custom_1 = Color(0.66, 0.66, 0.66, 1)
@@ -47,7 +47,7 @@ anim_sprite = NodePath("AnimatedSprite2D")
 collider = NodePath("CollisionShape2D")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=430657465]
-z_index = 5
+z_index = 4
 material = SubResource("ShaderMaterial_kaxde")
 sprite_frames = SubResource("SpriteFrames_spes0")
 animation = &"walk"

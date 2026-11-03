@@ -30,6 +30,38 @@ region = Rect2(16, 48, 16, 16)
 atlas = ExtResource("1_b5u6q")
 region = Rect2(32, 48, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_5yrvf"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b5u6q"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_78uey"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g6242"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(16, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3vw86"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xvrft"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(32, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a1jdf"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_83gy7"]
+atlas = ExtResource("1_b5u6q")
+region = Rect2(48, 16, 16, 16)
+
 [resource]
 animations = [{
 "frames": [{
@@ -62,4 +94,45 @@ animations = [{
 "loop": 0,
 "name": &"small_explosion",
 "speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5yrvf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b5u6q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5yrvf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_78uey")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g6242")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_78uey")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3vw86")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xvrft")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3vw86")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a1jdf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_83gy7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a1jdf")
+}],
+"loop": 1,
+"name": &"warp_star",
+"speed": 5.0
 }]

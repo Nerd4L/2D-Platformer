@@ -92,7 +92,7 @@ var start_pos: Vector2
 var facing_right: bool = true
 var coyote_time_counter: float = 0.0
 var fall_start_y: float = 0.0
-const BASE_SPRITE_OFFSET := Vector2(0.0, -4.0)
+const BASE_SPRITE_OFFSET := Vector2(0.0, -5.0)
 
 var current_health: int = 6
 var lives: int = 4
@@ -118,6 +118,7 @@ var is_spitting: bool = false
 var is_tumbling: bool = false
 var has_bounced: bool = false
 var is_dying: bool = false
+var is_riding_warp_star: bool = false
 
 var is_entering_door: bool = false
 var waiting_for_up_release: bool = false
@@ -192,8 +193,6 @@ func _input(event: InputEvent) -> void:
 			_handle_death()
 		elif event.keycode == KEY_P:
 			toggle_pause()
-		elif event.keycode == KEY_F11 or (event.keycode == KEY_ENTER and event.alt_pressed):
-			toggle_fullscreen()
 
 
 func reset_state() -> void:
@@ -276,7 +275,7 @@ func full_reset() -> void:
 # -----------------------------------------------------------------------------
 func _physics_process(delta: float) -> void:
 	# Freeze all Kirby physics and updates while paused or dying
-	if is_game_paused or is_dying:
+	if is_game_paused or is_dying or is_riding_warp_star:
 		return
 
 	_cleanup_invalid_enemies()
@@ -458,6 +457,7 @@ func on_enemy_caught_in_mouth(enemy: Node2D) -> void:
 		is_mouthful = true
 		_clear_inhale_particles()
 		anim_sprite.play("mouthful_idle")
+		add_score(200)
 
 
 func _clear_inhale_particles() -> void:
@@ -985,6 +985,39 @@ func _enter_door(door: Door) -> void:
 
 	waiting_for_up_release = true
 	is_entering_door = false
+
+# -----------------------------------------------------------------------------
+# WARPSTAR RIDING + ANIMATION
+# -----------------------------------------------------------------------------
+func mount_warp_star(star: Node2D) -> void:
+	is_riding_warp_star = true
+	velocity = Vector2.ZERO
+
+	# Cancel any float or mouthful
+	is_floating = false
+	is_mouthful = false
+
+	# Snap Kirby directly onto the star
+	global_position = star.global_position
+
+	# Disable colliders while riding
+	standing_collider.set_deferred("disabled", true)
+	crouch_collider.set_deferred("disabled", true)
+	float_collider.set_deferred("disabled", true)
+	hurtbox.set_deferred("monitoring", false)
+
+	anim_sprite.play("warp_star_ride")
+
+func dismount_warp_star() -> void:
+	is_riding_warp_star = false
+	velocity = Vector2.ZERO
+
+	# Re-enable colliders
+	standing_collider.set_deferred("disabled", false)
+	if hurtbox:
+		hurtbox.set_deferred("monitoring", true)
+
+	anim_sprite.play("idle")
 
 # -----------------------------------------------------------------------------
 # CAMERA BOUNDARIES
