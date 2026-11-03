@@ -47,6 +47,7 @@ anim_sprite = NodePath("AnimatedSprite2D")
 collider = NodePath("CollisionShape2D")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=430657465]
+z_index = 5
 material = SubResource("ShaderMaterial_kaxde")
 sprite_frames = SubResource("SpriteFrames_spes0")
 animation = &"walk"
