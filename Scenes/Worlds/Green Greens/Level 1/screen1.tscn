@@ -33,7 +33,7 @@ size = Vector2(4, 16)
 [node name="Green Greens 1-1" type="Node2D" unique_id=1909655078]
 
 [node name="DebugSpawn" type="Marker2D" parent="." unique_id=1213183762]
-position = Vector2(1067, -12)
+position = Vector2(1147, -26)
 
 [node name="Kirby" parent="." unique_id=1643385544 node_paths=PackedStringArray("debug_spawn_marker", "debug_camera_room", "terrain_layer", "starting_camera_room") instance=ExtResource("1_ca7oe")]
 position = Vector2(-23, -24)
@@ -60,8 +60,13 @@ target_camera_room = NodePath("../CameraRooms/Room1_Forest")
 levitate_marker = NodePath("../CompleteFlightPath/LevitatePoint")
 forest_marker = NodePath("../CompleteFlightPath/WarpTarget")
 flight_path_container = NodePath("../CompleteFlightPath/SwooshPath")
+flight_duration = 2.5
+pre_flight_camera_lead = 0.0
+camera_pan_duration = 4.0
+forest_crash_duration = 2.0
 
 [node name="CompleteFlightPath" type="Node2D" parent="." unique_id=480538440]
+visible = false
 
 [node name="LevitatePoint" type="Marker2D" parent="CompleteFlightPath" unique_id=139830766]
 visible = false
@@ -70,32 +75,28 @@ position = Vector2(1176, -37)
 [node name="SwooshPath" type="Node2D" parent="CompleteFlightPath" unique_id=1495790312]
 
 [node name="1" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1875155019]
-position = Vector2(1237, -22)
+position = Vector2(1231, -25)
 
-[node name="2" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1827591946]
-position = Vector2(1323, 27)
+[node name="2" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1648688754]
+position = Vector2(1319, 27)
 
-[node name="3" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1648688754]
-position = Vector2(1376, 26)
+[node name="3" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=223145577]
+position = Vector2(1407, 27)
 
-[node name="4" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=39999784]
-position = Vector2(1358, 20)
+[node name="4" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=2041922364]
+position = Vector2(1380, 16)
 
-[node name="5" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1165522958]
-position = Vector2(1343, 27)
+[node name="5" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=2111771389]
+position = Vector2(1355, 30)
 
 [node name="6" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=160012940]
-position = Vector2(1416, 11)
+position = Vector2(1434, 10)
 
 [node name="7" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=758346019]
-position = Vector2(1483, -37)
-
-[node name="8" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1786172310]
-position = Vector2(1542, -119)
+position = Vector2(1571, -127)
 
 [node name="WarpTarget" type="Marker2D" parent="CompleteFlightPath" unique_id=17765342]
-visible = false
-position = Vector2(1628, -24)
+position = Vector2(1628, -27)
 
 [node name="Spawners" type="Node2D" parent="." unique_id=909710987]
 

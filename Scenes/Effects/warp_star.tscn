@@ -14,7 +14,7 @@ script = ExtResource("1_4bihi")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=730740233]
 sprite_frames = ExtResource("1_exueh")
 animation = &"warp_star"
-frame_progress = 0.7379027
+frame_progress = 0.60520035
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=536718695]
 shape = SubResource("RectangleShape2D_tjrnq")

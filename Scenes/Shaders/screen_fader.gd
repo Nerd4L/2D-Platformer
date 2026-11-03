@@ -30,7 +30,7 @@ func _setup_rect() -> void:
 	color_rect.material = _material
 
 
-static func fade(to_white: bool, step_delay: float = 0.055) -> void:
+static func fade(to_white: bool, step_delay: float = 0.02) -> void:
 	if not instance:
 		var fader := ScreenFader.new()
 		var tree := Engine.get_main_loop() as SceneTree
@@ -40,7 +40,7 @@ static func fade(to_white: bool, step_delay: float = 0.055) -> void:
 	await instance._do_fade(to_white, step_delay)
 
 
-func _do_fade(to_white: bool, step_delay: float = 0.038) -> void:
+func _do_fade(to_white: bool, step_delay: float = 0.02) -> void:
 	visible = true
 	# 7-step progression
 	var steps: Array = [1, 2, 3, 4, 5, 6, 7] if to_white else [6, 5, 4, 3, 2, 1, 0]

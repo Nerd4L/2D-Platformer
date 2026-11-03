@@ -57,7 +57,7 @@ star_particle_texture = SubResource("AtlasTexture_1e83d")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1792995418]
 material = SubResource("ShaderMaterial_ca7oe")
 sprite_frames = ExtResource("4_7n2k2")
-animation = &"warp_star_ride"
+animation = &"idle"
 offset = Vector2(0, -4)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1188633967]
