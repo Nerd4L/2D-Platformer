@@ -1,3 +1,4 @@
+@tool
 extends Marker2D
 class_name EnemySpawner
 
@@ -6,9 +7,19 @@ enum DeeBehavior { PATROL, SLIDE, SLOW_WALK }
 @export_category("Enemy to Spawn")
 @export var enemy_scene: PackedScene
 @export var behavior: DeeBehavior = DeeBehavior.PATROL
-@export var patrol_distance: float = 0.0 # 0 = infinite, or enter pixels (e.g. 48 for 3 tiles)
+const TILE_SIZE: float = 16.0
+
+@export var patrol_tiles: float = 0.0: # Enter tiles as float (e.g. 2.0, 3.5)
+	set(val):
+		patrol_tiles = maxf(val, 0.0)
+		queue_redraw()
+
 @export var face_camera_on_spawn: bool = true
-@export var default_face_left: bool = true
+@export var default_face_left: bool = true:
+	set(val):
+		default_face_left = val
+		queue_redraw()
+
 @export var snap_to_floor: bool = true
 
 @export_category("Game Boy Screen Margins (in Pixels)")
@@ -21,6 +32,8 @@ var can_spawn: bool = true
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
 	add_to_group("resettable")
 
 
@@ -32,10 +45,12 @@ func reset_state() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
 	var screen_rect: Rect2 = _get_camera_world_rect()
 	
 	if is_instance_valid(current_enemy):
-		# Don't despawn an enemy while Kirby is actively inhaling it!
 		if "state" in current_enemy and current_enemy.state != 0:
 			return
 			
@@ -63,14 +78,12 @@ func _spawn_enemy(screen_rect: Rect2) -> void:
 		
 	var enemy := enemy_scene.instantiate() as Node2D
 	
-	# 1. Floor snap / position
 	var spawn_pos: Vector2 = global_position
 	if snap_to_floor:
 		var foot_offset: float = _get_enemy_foot_offset(enemy)
 		spawn_pos = _get_floor_position_below(foot_offset)
 	enemy.global_position = spawn_pos
 	
-	# 2. Facing direction BEFORE adding to tree
 	if "start_facing_left" in enemy:
 		if face_camera_on_spawn:
 			var cam_center_x: float = screen_rect.get_center().x
@@ -78,13 +91,11 @@ func _spawn_enemy(screen_rect: Rect2) -> void:
 		else:
 			enemy.start_facing_left = default_face_left
 			
-	# 3. Add to tree FIRST so _ready() runs and child nodes exist
 	get_parent().add_child(enemy)
 	current_enemy = enemy
 
-	# 4. Apply Behavior and Patrol Distance AFTER _ready()
 	if enemy.has_method("set_behavior"):
-		enemy.set_behavior(behavior, patrol_distance)
+		enemy.set_behavior(behavior, patrol_tiles)
 
 
 func _get_enemy_foot_offset(enemy: Node2D) -> float:
@@ -113,3 +124,27 @@ func _get_camera_world_rect() -> Rect2:
 	var visible_size: Vector2 = viewport.get_visible_rect().size
 	var playfield_size := Vector2(visible_size.x, visible_size.y - 16.0)
 	return Rect2(canvas_to_world * Vector2.ZERO, playfield_size)
+
+
+# --- 2D Editor Debug Drawing ---
+func _draw() -> void:
+	if not Engine.is_editor_hint():
+		return
+
+	# Crosshair at spawn point
+	var point_col := Color(0.2, 0.8, 0.2, 0.9) # Game Boy green
+	draw_line(Vector2(-3.0, 0.0), Vector2(3.0, 0.0), point_col, 1.0)
+	draw_line(Vector2(0.0, -3.0), Vector2(0.0, 3.0), point_col, 1.0)
+
+	if patrol_tiles > 0.0:
+		var patrol_px: float = patrol_tiles * TILE_SIZE
+		var dir: float = -1.0 if default_face_left else 1.0
+		var end_pt := Vector2(dir * patrol_px, 0.0)
+		var line_col := Color(0.1, 0.9, 0.7, 0.85)
+
+		# Patrol path line
+		draw_line(Vector2.ZERO, end_pt, line_col, 1.0)
+		
+		# Start & End Ticks
+		draw_line(Vector2(0.0, -4.0), Vector2(0.0, 4.0), line_col, 1.5)
+		draw_line(end_pt + Vector2(0.0, -4.0), end_pt + Vector2(0.0, 4.0), line_col, 1.5)

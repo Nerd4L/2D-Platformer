@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bkocnokjp2jyl"]
 
 [ext_resource type="Script" uid="uid://go81limjet" path="res://Scenes/Enemies/waddle_dee.gd" id="1_74ikw"]
-[ext_resource type="Texture2D" uid="uid://ggm8u1vbhmm1" path="res://Images/Characters/enemies-spritesheet.png" id="2_n6ouj"]
 [ext_resource type="Shader" uid="uid://bh7pn5xsnjun7" path="res://Scenes/Shaders/palette_swap.gdshader" id="2_nwon6"]
+[ext_resource type="SpriteFrames" uid="uid://dukwkum2y1kse" path="res://Animations/enemies.tres" id="3_nwon6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kaxde"]
 shader = ExtResource("2_nwon6")
@@ -12,40 +12,6 @@ shader_parameter/custom_0 = Color(1, 1, 1, 1)
 shader_parameter/custom_1 = Color(0.66, 0.66, 0.66, 1)
 shader_parameter/custom_2 = Color(0.33, 0.33, 0.33, 1)
 shader_parameter/custom_3 = Color(0, 0, 0, 1)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nwon6"]
-atlas = ExtResource("2_n6ouj")
-region = Rect2(0, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fw68i"]
-atlas = ExtResource("2_n6ouj")
-region = Rect2(0, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_idd6v"]
-atlas = ExtResource("2_n6ouj")
-region = Rect2(0, 16, 16, 16)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_spes0"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_nwon6")
-}],
-"loop": 1,
-"name": &"slide",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fw68i")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_idd6v")
-}],
-"loop": 1,
-"name": &"walk",
-"speed": 5.0
-}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6gnmv"]
 size = Vector2(12, 14)
@@ -61,8 +27,8 @@ collider = NodePath("CollisionShape2D")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=430657465]
 z_index = 4
 material = SubResource("ShaderMaterial_kaxde")
-sprite_frames = SubResource("SpriteFrames_spes0")
-animation = &"slide"
+sprite_frames = ExtResource("3_nwon6")
+animation = &"waddle_dee_walk"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=629876666]
 position = Vector2(0, 1)

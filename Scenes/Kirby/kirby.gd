@@ -257,6 +257,7 @@ func reset_state() -> void:
 	is_crouching = false
 	is_entering_door = false
 	waiting_for_up_release = false
+	is_riding_warp_star = false
 
 	wall_squish_timer = 0.0
 	swallow_spit_timer = 0.0
@@ -459,13 +460,19 @@ func _check_inhale_targets() -> void:
 
 func on_enemy_caught_in_mouth(enemy: Node2D) -> void:
 	inhaling_enemies.erase(enemy)
+
+	# 1. Ask the enemy for its specific inhale point value
+	if is_instance_valid(enemy):
+		var pts: int = enemy.inhale_score	
+		add_score(pts)
+
+	# 2. Enter mouthful immediately
 	if inhaling_enemies.is_empty():
 		is_inhaling = false
 		is_inhale_recovering = false
 		is_mouthful = true
 		_clear_inhale_particles()
 		anim_sprite.play("mouthful_idle")
-		add_score(200)
 
 
 func _clear_inhale_particles() -> void:
@@ -1001,9 +1008,10 @@ func mount_warp_star(star: Node2D, faces_right: bool = true) -> void:
 	is_riding_warp_star = true
 	velocity = Vector2.ZERO
 
-	# Cancel any float or mouthful
+	# Cancel any float or mouthful and particles
 	is_floating = false
 	is_mouthful = false
+	_clear_inhale_particles()
 
 	# Snap Kirby directly onto the star
 	global_position = star.global_position

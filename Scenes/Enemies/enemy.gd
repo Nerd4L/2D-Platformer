@@ -3,7 +3,8 @@ class_name Enemy
 
 @export_category("Enemy Stats")
 @export var max_health: int = 1
-@export var score_value: int = 200
+@export var inhale_score: int = 200   # Points awarded when swallowed/caught in mouth
+@export var defeat_score: int = 400   # Points awarded when killed by star, air puff, or stomp
 @export var sprite_faces_left_by_default: bool = true
 
 @export_category("Nodes")
@@ -50,7 +51,7 @@ func die() -> void:
 	
 	var kirby := get_tree().get_first_node_in_group("player")
 	if kirby and kirby.has_method("add_score"):
-		kirby.add_score(score_value)
+		kirby.add_score(defeat_score)
 		
 	queue_free()
 

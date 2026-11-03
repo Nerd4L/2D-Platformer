@@ -37,6 +37,7 @@ position = Vector2(1147, -26)
 
 [node name="Kirby" parent="." unique_id=1643385544 node_paths=PackedStringArray("debug_spawn_marker", "debug_camera_room", "terrain_layer", "starting_camera_room") instance=ExtResource("1_ca7oe")]
 position = Vector2(-23, -24)
+use_debug_spawn = true
 debug_spawn_marker = NodePath("../DebugSpawn")
 debug_camera_room = NodePath("../CameraRooms/Room1_Plains")
 terrain_layer = NodePath("../TerrainLayer")
@@ -56,70 +57,88 @@ tile_set = ExtResource("3_53r2y")
 [node name="WarpStar" parent="." unique_id=671121912 node_paths=PackedStringArray("target_camera_room", "levitate_marker", "forest_marker", "flight_path_container") instance=ExtResource("4_o5f80")]
 position = Vector2(1184, -24)
 target_camera_room = NodePath("../CameraRooms/Room1_Forest")
-levitate_marker = NodePath("../CompleteFlightPath/LevitatePoint")
-forest_marker = NodePath("../CompleteFlightPath/WarpTarget")
-flight_path_container = NodePath("../CompleteFlightPath/SwooshPath")
+levitate_marker = NodePath("CompleteFlightPath/LevitatePoint")
+forest_marker = NodePath("CompleteFlightPath/WarpTarget")
+flight_path_container = NodePath("CompleteFlightPath/SwooshPath")
 flight_duration = 2.5
 pre_flight_camera_lead = 0.0
 camera_pan_duration = 4.0
 forest_crash_duration = 2.0
 
-[node name="CompleteFlightPath" type="Node2D" parent="." unique_id=480538440]
+[node name="CompleteFlightPath" type="Node2D" parent="WarpStar" unique_id=480538440]
 visible = false
+position = Vector2(-1184, 24)
 
-[node name="LevitatePoint" type="Marker2D" parent="CompleteFlightPath" unique_id=139830766]
-visible = false
+[node name="LevitatePoint" type="Marker2D" parent="WarpStar/CompleteFlightPath" unique_id=139830766]
 position = Vector2(1176, -37)
 
-[node name="SwooshPath" type="Node2D" parent="CompleteFlightPath" unique_id=1495790312]
+[node name="SwooshPath" type="Node2D" parent="WarpStar/CompleteFlightPath" unique_id=1495790312]
 
-[node name="1" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1875155019]
+[node name="1" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=1875155019]
 position = Vector2(1231, -25)
 
-[node name="2" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=1648688754]
+[node name="2" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=1648688754]
 position = Vector2(1319, 27)
 
-[node name="3" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=223145577]
+[node name="3" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=223145577]
 position = Vector2(1407, 27)
 
-[node name="4" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=2041922364]
-position = Vector2(1380, 16)
+[node name="4" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=2041922364]
+position = Vector2(1380, 5)
 
-[node name="5" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=2111771389]
+[node name="5" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=2111771389]
 position = Vector2(1355, 30)
 
-[node name="6" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=160012940]
+[node name="6" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=160012940]
 position = Vector2(1434, 10)
 
-[node name="7" type="Marker2D" parent="CompleteFlightPath/SwooshPath" unique_id=758346019]
+[node name="7" type="Marker2D" parent="WarpStar/CompleteFlightPath/SwooshPath" unique_id=758346019]
 position = Vector2(1571, -127)
 
-[node name="WarpTarget" type="Marker2D" parent="CompleteFlightPath" unique_id=17765342]
+[node name="WarpTarget" type="Marker2D" parent="WarpStar/CompleteFlightPath" unique_id=17765342]
 position = Vector2(1628, -27)
 
 [node name="Spawners" type="Node2D" parent="." unique_id=909710987]
 
-[node name="EnemySpawner1" parent="Spawners" unique_id=431515235 instance=ExtResource("3_o5f80")]
+[node name="Waddle Dees" type="Node2D" parent="Spawners" unique_id=1449034340]
+
+[node name="EnemySpawner1" parent="Spawners/Waddle Dees" unique_id=431515235 instance=ExtResource("3_o5f80")]
 position = Vector2(175, 3)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
+patrol_tiles = null
 face_camera_on_spawn = false
 
-[node name="EnemySpawner2" parent="Spawners" unique_id=1594276842 instance=ExtResource("3_o5f80")]
+[node name="EnemySpawner2" parent="Spawners/Waddle Dees" unique_id=1594276842 instance=ExtResource("3_o5f80")]
 position = Vector2(200, 4)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
+patrol_tiles = null
 face_camera_on_spawn = false
 
-[node name="EnemySpawner3" parent="Spawners" unique_id=2025830885 instance=ExtResource("3_o5f80")]
-position = Vector2(265, -18)
+[node name="EnemySpawner3" parent="Spawners/Waddle Dees" unique_id=2025830885 instance=ExtResource("3_o5f80")]
+position = Vector2(302, -16)
+enemy_scene = ExtResource("4_13kcy")
+patrol_tiles = 2.0
+face_camera_on_spawn = false
+
+[node name="EnemySpawner4" parent="Spawners/Waddle Dees" unique_id=1217995567 instance=ExtResource("3_o5f80")]
+position = Vector2(472, 2)
+enemy_scene = ExtResource("4_13kcy")
+patrol_tiles = 2.0
+face_camera_on_spawn = false
+
+[node name="EnemySpawner5" parent="Spawners/Waddle Dees" unique_id=1855519823 instance=ExtResource("3_o5f80")]
+position = Vector2(971, 6)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 1
+patrol_tiles = 5.0
 face_camera_on_spawn = false
 
-[node name="EnemySpawner4" parent="Spawners" unique_id=1217995567 instance=ExtResource("3_o5f80")]
-position = Vector2(442, -2)
+[node name="EnemySpawner6" parent="Spawners/Waddle Dees" unique_id=809345867 instance=ExtResource("3_o5f80")]
+position = Vector2(1062, 7)
 enemy_scene = ExtResource("4_13kcy")
+patrol_tiles = 1.0
 face_camera_on_spawn = false
 
 [node name="Doors" type="Node2D" parent="." unique_id=1787275505]

@@ -1,0 +1,68 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://dukwkum2y1kse"]
+
+[ext_resource type="Texture2D" uid="uid://ggm8u1vbhmm1" path="res://Images/Characters/enemies-spritesheet.png" id="1_3k2xn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3k2xn"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ewduy"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(32, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nwon6"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oder7"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fw68i"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idd6v"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(0, 16, 16, 16)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3k2xn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ewduy")
+}],
+"loop": 1,
+"name": &"bronto_fly",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nwon6")
+}],
+"loop": 1,
+"name": &"waddle_dee_slide",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oder7")
+}],
+"loop": 1,
+"name": &"waddle_dee_slide_turn",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fw68i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idd6v")
+}],
+"loop": 1,
+"name": &"waddle_dee_walk",
+"speed": 5.0
+}]
