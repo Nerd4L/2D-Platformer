@@ -1078,13 +1078,16 @@ func _clamp_to_level_bounds() -> void:
 
 
 ## Smoothly unlocks the camera towards the right without jumping or snapping
-func expand_camera_room(room: ReferenceRect) -> void:
+func smooth_expand_camera_room(room: ReferenceRect, duration: float = 1.4) -> void:
 	if not room or not cam:
 		return
 	var rect: Rect2 = room.get_global_rect()
-	cam.limit_right = max(cam.limit_right, int(rect.end.x))
 	cam.limit_top = min(cam.limit_top, int(rect.position.y))
 	cam.limit_bottom = max(cam.limit_bottom, int(rect.end.y + hud_height))
+
+	# Smoothly glide the right boundary over time so the camera pans like butter!
+	var tw := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(cam, "limit_right", int(rect.end.x), duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 # -----------------------------------------------------------------------------
 # VISUALS & ANIMATIONS
