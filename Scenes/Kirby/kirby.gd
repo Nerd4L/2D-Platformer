@@ -376,6 +376,7 @@ func _handle_jump_and_float_actions(near_door: bool) -> void:
 			is_floating = true
 			is_flapping = true
 			is_tumbling = false
+			wall_squish_timer = 0.0
 			velocity.y = float_up_velocity
 			anim_sprite.play("float_startup")
 		elif not busy_inhaling and jump_buffer_counter > 0.0 and (is_on_floor() or coyote_time_counter > 0.0):
@@ -868,7 +869,8 @@ func _update_colliders() -> void:
 
 
 func _handle_impacts(was_on_floor: bool, was_on_wall: bool, pre_vx: float, fallen_px: float) -> void:
-	if not is_tumbling and is_on_wall() and not was_on_wall and absf(pre_vx) > move_speed * 0.8:
+	var can_wall_squish: bool = not is_floating and not is_mouthful and not is_exhaling and not is_tumbling
+	if can_wall_squish and is_on_wall() and not was_on_wall and absf(pre_vx) > move_speed * 0.8:
 		_spawn_impact_star()
 		wall_squish_timer = 0.12
 		anim_sprite.offset.x = BASE_SPRITE_OFFSET.x + (2.0 if pre_vx > 0.0 else -2.0)
@@ -909,6 +911,12 @@ func _spawn_impact_star(spawn_pos: Vector2 = Vector2.INF) -> void:
 
 func _update_action_timers(delta: float) -> void:
 	_update_hurt_and_invulnerability(delta)
+	
+	if wall_squish_timer > 0.0:
+		wall_squish_timer -= delta
+		if wall_squish_timer <= 0.0:
+			wall_squish_timer = 0.0
+			anim_sprite.offset.x = BASE_SPRITE_OFFSET.x
 
 	if platform_drop_timer > 0.0:
 		platform_drop_timer -= delta
@@ -1043,9 +1051,11 @@ func _update_animations(delta: float) -> void:
 	if not anim_sprite or not anim_sprite.sprite_frames:
 		return
 
-	if wall_squish_timer <= 0.0:
-		anim_sprite.offset.x = BASE_SPRITE_OFFSET.x
 	anim_sprite.offset.y = BASE_SPRITE_OFFSET.y
+	
+	if wall_squish_timer > 0.0 and not is_floating and not is_mouthful:
+		anim_sprite.play("squish")
+		return
 
 	if has_bounced:
 		_reset_blink_timer()
@@ -1095,11 +1105,6 @@ func _update_animations(delta: float) -> void:
 				anim_sprite.offset.x = BASE_SPRITE_OFFSET.x + 1.0
 		else:
 			anim_sprite.play("mouthful_idle")
-		return
-
-	if wall_squish_timer > 0.0:
-		wall_squish_timer -= delta
-		anim_sprite.play("squish")
 		return
 
 	if not is_on_floor():
