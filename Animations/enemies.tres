@@ -10,6 +10,22 @@ region = Rect2(32, 0, 16, 16)
 atlas = ExtResource("1_3k2xn")
 region = Rect2(32, 16, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_jpewi"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(48, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hewkn"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ujst4"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(48, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nw1dw"]
+atlas = ExtResource("1_3k2xn")
+region = Rect2(48, 32, 16, 16)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_pm6kb"]
 atlas = ExtResource("1_3k2xn")
 region = Rect2(16, 32, 16, 16)
@@ -53,6 +69,33 @@ animations = [{
 }],
 "loop": 1,
 "name": &"bronto_fly",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jpewi")
+}],
+"loop": 1,
+"name": &"cappy_cap_only",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hewkn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ujst4")
+}],
+"loop": 1,
+"name": &"cappy_capless",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nw1dw")
+}],
+"loop": 1,
+"name": &"cappy_capped",
 "speed": 5.0
 }, {
 "frames": [{

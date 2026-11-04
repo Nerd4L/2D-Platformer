@@ -9,8 +9,26 @@ enum BrontoBehavior { WAVE, DIVE, BOUNCE }
 @export var enemy_scene: PackedScene:
 	set(val):
 		enemy_scene = val
-		notify_property_list_changed() # Refreshes inspector immediately when scene changes
+		# Automatically pull default patrol values from the chosen enemy scene
+		if Engine.is_editor_hint() and enemy_scene:
+			var temp = enemy_scene.instantiate()
+			if "capped_patrol_tiles" in temp:
+				patrol_tiles = temp.capped_patrol_tiles
+			elif "patrol_tiles" in temp and temp.patrol_tiles > 0.0:
+				patrol_tiles = temp.patrol_tiles
+
+			if "capless_patrol_tiles" in temp:
+				capless_patrol_tiles = temp.capless_patrol_tiles
+			temp.free()
+
+		notify_property_list_changed()
+		queue_redraw()
 @export var behavior: int = 0
+
+@export var capless_patrol_tiles: float = 3.5:
+	set(val):
+		capless_patrol_tiles = maxf(val, 0.0)
+		queue_redraw()
 
 @export_group("Bronto Burt Flight Tuning")
 @export var flight_speed_x: float = 38.0:
@@ -32,23 +50,50 @@ enum BrontoBehavior { WAVE, DIVE, BOUNCE }
 @export_group("", "")
 
 func _validate_property(property: Dictionary) -> void:
+	var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
+	var is_burt: bool = ("bronto" in path or "burt" in path)
+	var is_cappy: bool = ("cappy" in path)
+
+	# 1. Behavior Dropdown
 	if property.name == "behavior":
-		var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
-		
 		if "waddle_dee" in path:
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = "PATROL,SLIDE,SLOW_WALK"
-		elif "bronto_burt" in path:
+		elif is_burt:
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = "WAVE,DIVE,BOUNCE,VERTICAL"
-			if property.name in ["flight_speed_x", "flight_speed_y", "wave_frequency", "wave_amplitude"]:
-				property.usage &= ~PROPERTY_USAGE_EDITOR
 		elif "twizzy" in path:
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = "FLY,HOP"
 		else:
-			# Hide behavior dropdown completely if no enemy or unknown enemy is selected
+			# Hide behavior dropdown if no scene or if Cappy (Cappy only patrols)
 			property.usage &= ~PROPERTY_USAGE_EDITOR
+
+	# 2. Cappy-only properties
+	elif property.name == "capless_patrol_tiles":
+		if not is_cappy:
+			property.usage &= ~PROPERTY_USAGE_EDITOR
+
+	# 3. Bronto Burt-only properties & Group Header
+	elif property.name in ["flight_speed_x", "flight_speed_y", "wave_frequency", "wave_amplitude", "Bronto Burt Flight Tuning"]:
+		if not is_burt:
+			property.usage &= ~PROPERTY_USAGE_EDITOR
+
+func _property_can_revert(property: StringName) -> bool:
+	if property == &"patrol_tiles" or property == &"capless_patrol_tiles":
+		return true
+	return false
+
+
+func _property_get_revert(property: StringName) -> Variant:
+	var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
+	var is_cappy: bool = ("cappy" in path)
+
+	if property == &"patrol_tiles":
+		return 1.5 if is_cappy else 0.0
+	elif property == &"capless_patrol_tiles":
+		return 3.5
+	return null
 
 const TILE_SIZE: float = 16.0
 @export var patrol_tiles: float = 0.0: # Enter tiles as float (e.g. 2.0, 3.5)
@@ -134,6 +179,11 @@ func _spawn_enemy() -> void:
 	if enemy.has_method("set_behavior"):
 		enemy.set_behavior(behavior, patrol_tiles)
 	
+	if "capped_patrol_tiles" in enemy and patrol_tiles > 0.0:
+		enemy.capped_patrol_tiles = patrol_tiles
+	if "capless_patrol_tiles" in enemy and capless_patrol_tiles > 0.0:
+		enemy.capless_patrol_tiles = capless_patrol_tiles
+	
 	if "flight_speed_x" in enemy:
 		enemy.flight_speed_x = flight_speed_x
 		enemy.flight_speed_y = flight_speed_y
@@ -181,8 +231,21 @@ func _draw() -> void:
 
 	var path: String = enemy_scene.resource_path.to_lower() if enemy_scene else ""
 	var is_burt: bool = ("bronto" in path or "burt" in path)
+	var is_cappy: bool = ("cappy" in path)
 	var dir_x: float = -1.0 if default_face_left else 1.0
 	var line_col := Color(0.1, 0.9, 0.7, 0.85)
+	
+	# Inside _draw(): Add under your standard patrol drawing block:
+	if is_cappy:
+		# Draw Capless Panic Patrol range in amber 3px below the main line
+		if capless_patrol_tiles > 0.0:
+			var capless_px: float = capless_patrol_tiles * TILE_SIZE
+			var amber_col := Color(1.0, 0.65, 0.2, 0.8)
+			var end_capless := Vector2(dir_x * capless_px, 3.0)
+			
+			draw_line(Vector2(0.0, 3.0), end_capless, amber_col, 1.0)
+			draw_line(Vector2(0.0, 1.0), Vector2(0.0, 5.0), amber_col, 1.5)
+			draw_line(end_capless + Vector2(0.0, -2.0), end_capless + Vector2(0.0, 2.0), amber_col, 1.5)
 
 	# --- BRONTO BURT WAVE FLIGHT PREVIEW ---
 	if is_burt and behavior == 0: # Behavior 0 = WAVE

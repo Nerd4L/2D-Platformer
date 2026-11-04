@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b12r26vgf1cs"]
+
+[ext_resource type="SpriteFrames" uid="uid://dukwkum2y1kse" path="res://Animations/enemies.tres" id="1_pd7u6"]
+[ext_resource type="Script" uid="uid://0fq3p5n168px" path="res://Scenes/Enemies/cappy.gd" id="1_qbxor"]
+[ext_resource type="PackedScene" uid="uid://dgbqmytvju0fe" path="res://Scenes/Enemies/cappy_cap.tscn" id="2_4dy43"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
+size = Vector2(10, 14)
+
+[node name="Cappy" type="CharacterBody2D" unique_id=156230585 node_paths=PackedStringArray("anim_sprite", "collider")]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_qbxor")
+cap_scene = ExtResource("2_4dy43")
+anim_sprite = NodePath("AnimatedSprite2D")
+collider = NodePath("CollisionShape2D")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=93998118]
+sprite_frames = ExtResource("1_pd7u6")
+animation = &"cappy_capped"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1256794187]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_tjrnq")
