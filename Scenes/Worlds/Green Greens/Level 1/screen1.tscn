@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" uid="uid://cctarqt0f4g3q" path="res://Scenes/Enemies/bronto_burt.tscn" id="8_qhhv5"]
 [ext_resource type="PackedScene" uid="uid://bxit64rthbvrd" path="res://Scenes/Enemies/twizzy.tscn" id="9_qhhv5"]
 [ext_resource type="PackedScene" uid="uid://b12r26vgf1cs" path="res://Scenes/Enemies/cappy.tscn" id="10_0g7qa"]
+[ext_resource type="Shader" uid="uid://cx8v51jytxx08" path="res://Scenes/Shaders/gameboy.gdshader" id="13_lvj6e"]
+[ext_resource type="Script" uid="uid://dw5ncpwt8d307" path="res://Scenes/Shaders/gameboy_ghosting.gd" id="14_73u30"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_53r2y"]
 shader = ExtResource("2_o5f80")
@@ -33,6 +35,16 @@ shader_parameter/custom_3 = Color(0, 0, 0, 1)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
 size = Vector2(4, 16)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3k2xn"]
+shader = ExtResource("13_lvj6e")
+shader_parameter/palette_mode = 1
+shader_parameter/grid_intensity = 0.45
+shader_parameter/enable_blur = true
+shader_parameter/lcd_blur = 0.350000016625
+shader_parameter/enable_ghosting = true
+shader_parameter/ghost_persistence = 0.750000035625
+shader_parameter/native_resolution = Vector2(160, 144)
 
 [node name="Green Greens 1-1" type="Node2D" unique_id=1909655078]
 
@@ -109,61 +121,31 @@ position = Vector2(1628, -27)
 position = Vector2(175, 3)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 
 [node name="EnemySpawner2" parent="Spawners/Waddle Dees" unique_id=1594276842 instance=ExtResource("3_o5f80")]
 position = Vector2(200, 4)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 2
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 
 [node name="EnemySpawner3" parent="Spawners/Waddle Dees" unique_id=2025830885 instance=ExtResource("3_o5f80")]
 position = Vector2(302, -16)
 enemy_scene = ExtResource("4_13kcy")
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 patrol_tiles = 2.0
 
 [node name="EnemySpawner4" parent="Spawners/Waddle Dees" unique_id=1217995567 instance=ExtResource("3_o5f80")]
 position = Vector2(472, 2)
 enemy_scene = ExtResource("4_13kcy")
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 patrol_tiles = 2.0
 
 [node name="EnemySpawner5" parent="Spawners/Waddle Dees" unique_id=1855519823 instance=ExtResource("3_o5f80")]
 position = Vector2(971, 6)
 enemy_scene = ExtResource("4_13kcy")
 behavior = 1
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 patrol_tiles = 5.0
 
 [node name="EnemySpawner6" parent="Spawners/Waddle Dees" unique_id=809345867 instance=ExtResource("3_o5f80")]
 position = Vector2(1062, 7)
 enemy_scene = ExtResource("4_13kcy")
-capless_patrol_tiles = null
-flight_speed_x = null
-flight_speed_y = null
-wave_frequency = null
-wave_amplitude = null
 patrol_tiles = 1.0
 
 [node name="Bronto Burts" type="Node2D" parent="Spawners" unique_id=992991871]
@@ -173,7 +155,6 @@ position = Vector2(436, -54)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("8_qhhv5")
 behavior = 3
-capless_patrol_tiles = null
 patrol_tiles = 3.0
 snap_to_floor = false
 
@@ -181,14 +162,12 @@ snap_to_floor = false
 position = Vector2(667, -64)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("8_qhhv5")
-capless_patrol_tiles = null
 snap_to_floor = false
 
 [node name="EnemySpawner3" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=35194879]
 position = Vector2(689, -56)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("8_qhhv5")
-capless_patrol_tiles = null
 snap_to_floor = false
 
 [node name="EnemySpawner4" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=1723887872]
@@ -196,14 +175,12 @@ position = Vector2(920, -54)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("8_qhhv5")
 behavior = 3
-capless_patrol_tiles = null
 snap_to_floor = false
 
 [node name="EnemySpawner5" type="Marker2D" parent="Spawners/Bronto Burts" unique_id=870360448]
 position = Vector2(1184, -57)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("8_qhhv5")
-capless_patrol_tiles = null
 wave_frequency = 5.5
 wave_amplitude = 50.0
 snap_to_floor = false
@@ -214,7 +191,6 @@ snap_to_floor = false
 position = Vector2(279, -40)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("9_qhhv5")
-capless_patrol_tiles = null
 snap_to_floor = false
 
 [node name="EnemySpawner2" type="Marker2D" parent="Spawners/Twizzys" unique_id=1896223659]
@@ -222,20 +198,17 @@ position = Vector2(328, -8)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("9_qhhv5")
 behavior = 1
-capless_patrol_tiles = null
 
 [node name="EnemySpawner3" type="Marker2D" parent="Spawners/Twizzys" unique_id=605459666]
 position = Vector2(856, -8)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("9_qhhv5")
 behavior = 1
-capless_patrol_tiles = null
 
 [node name="EnemySpawner4" type="Marker2D" parent="Spawners/Twizzys" unique_id=26631291]
 position = Vector2(1063, -26)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("9_qhhv5")
-capless_patrol_tiles = null
 snap_to_floor = false
 
 [node name="EnemySpawner5" type="Marker2D" parent="Spawners/Twizzys" unique_id=1678722094]
@@ -243,7 +216,6 @@ position = Vector2(1128, -8)
 script = ExtResource("7_joajk")
 enemy_scene = ExtResource("9_qhhv5")
 behavior = 1
-capless_patrol_tiles = null
 
 [node name="Cappy" type="Node2D" parent="Spawners" unique_id=1817610861]
 
@@ -319,3 +291,17 @@ offset_right = 768.0
 offset_bottom = -96.0
 
 [node name="HUD" parent="." unique_id=398389498 instance=ExtResource("6_qhhv5")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1211793408]
+layer = 100
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=75273012]
+visible = false
+material = SubResource("ShaderMaterial_3k2xn")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("14_73u30")

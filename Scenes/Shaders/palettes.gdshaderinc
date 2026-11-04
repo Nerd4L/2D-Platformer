@@ -1,7 +1,7 @@
 // res://Scenes/Shaders/palettes.gdshaderinc
 
 // 1. DROPDOWN IN THE INSPECTOR
-uniform int palette_choice : hint_enum("Original", "Custom", "GameBoy Green", "Pink", "Peach", "Icy Blue", "Desert") = 0;
+uniform int palette_choice : hint_enum("Original", "Custom", "GameBoy Green", "Pink", "Peach", "Icy Blue", "Desert", "GameBoy Green (Other)") = 0;
 
 // 2. INSPECTOR COLOR PICKERS for live testing
 group_uniforms Custom_Palette_In_Inspector;
@@ -27,7 +27,7 @@ vec3 sample_pal(int idx) {
 				vec3(48.0,   98.0,  48.0) / 255.0, // #306230
 				vec3(15.0,   56.0,  15.0) / 255.0  // #0f380f
 			)[i];
-		
+			
 		case 3: // Pink
 			return vec3[4](
 				vec3(252.0, 194.0, 228.0) / 255.0, // #fcc2e4
@@ -59,6 +59,14 @@ vec3 sample_pal(int idx) {
 				vec3(235.0, 107.0, 111.0) / 255.0, // #eb6b6f
 				vec3(124.0,  63.0,  88.0) / 255.0  // #7c3f58
 				//vec3(0.0,     0.0,   0.0) / 255.0 // #000000
+			)[i];
+
+		case 7: // GameBoy Green (Other)
+			return vec3[4](
+				vec3(88.0,  112.0,   0.0) / 255.0, // #587000
+				vec3(61.0,   93.0,   0.0) / 255.0, // #3d5d00
+				vec3(36.0,   76.0,   0.0) / 255.0, // #244c00
+				vec3(32.0,   70.0,   0.0) / 255.0  // #204600
 			)[i];
 
 		default: // 0: Original Grayscale
