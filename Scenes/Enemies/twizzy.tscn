@@ -4,7 +4,7 @@
 [ext_resource type="SpriteFrames" uid="uid://dukwkum2y1kse" path="res://Animations/enemies.tres" id="2_ob5gk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
-size = Vector2(8, 10)
+size = Vector2(14, 12)
 
 [node name="Twizzy" type="CharacterBody2D" unique_id=1553259950]
 z_index = 4
@@ -18,5 +18,5 @@ animation = &"twizzy_flap"
 frame_progress = 0.050882656
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1193396842]
-position = Vector2(0, 3)
+position = Vector2(0, 2)
 shape = SubResource("RectangleShape2D_tjrnq")

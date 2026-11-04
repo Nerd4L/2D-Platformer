@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dgbqmytvju0fe" path="res://Scenes/Enemies/cappy_cap.tscn" id="2_4dy43"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tjrnq"]
-size = Vector2(10, 14)
+size = Vector2(14, 14)
 
 [node name="Cappy" type="CharacterBody2D" unique_id=156230585 node_paths=PackedStringArray("anim_sprite", "collider")]
 collision_layer = 8
