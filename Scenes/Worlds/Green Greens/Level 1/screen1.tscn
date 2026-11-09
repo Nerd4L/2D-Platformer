@@ -43,7 +43,7 @@ shader_parameter/grid_intensity = 0.45
 shader_parameter/enable_blur = true
 shader_parameter/lcd_blur = 0.350000016625
 shader_parameter/enable_ghosting = true
-shader_parameter/ghost_persistence = 0.750000035625
+shader_parameter/ghost_persistence = 0.850000040375
 shader_parameter/native_resolution = Vector2(160, 144)
 
 [node name="Green Greens 1-1" type="Node2D" unique_id=1909655078]

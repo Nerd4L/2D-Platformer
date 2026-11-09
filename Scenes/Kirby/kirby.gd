@@ -1283,11 +1283,3 @@ func toggle_pause() -> void:
 		return
 	is_game_paused = not is_game_paused
 	set_world_paused(is_game_paused)
-
-func toggle_fullscreen() -> void:
-	var current_mode := DisplayServer.window_get_mode(DisplayServer.MAIN_WINDOW_ID)
-	
-	if current_mode == DisplayServer.WINDOW_MODE_FULLSCREEN or current_mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED, DisplayServer.MAIN_WINDOW_ID)
-	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN, DisplayServer.MAIN_WINDOW_ID)
